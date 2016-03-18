@@ -1,9 +1,10 @@
 swagger: '2.0'
 
 info:
-  version: "1.0.0"
+  version: "0.0.1"
   title: Taxi(-like) Operators
-
+  description: |
+    Work-in-progress proposal for taxi-like operators to connect their services to SkedGo's platform.
   
 
 # Describe your paths here
