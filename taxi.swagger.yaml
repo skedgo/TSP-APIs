@@ -160,6 +160,9 @@ definitions:
         type: boolean
         description: If a wheelchair-accessible vehicle is required
         default: false
+      productId:
+        type: string
+        description: ID of the product if quotes should be limited to that.
     required:
       - origin
     example:
