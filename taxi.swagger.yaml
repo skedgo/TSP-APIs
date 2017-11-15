@@ -1,13 +1,12 @@
 swagger: '2.0'
 
 info:
-  version: "0.0.1"
+  version: "0.0.2"
   title: Taxi(-like) Operators
   description: |
     Work-in-progress proposal for taxi-like operators to connect their services to SkedGo's platform.
   
 
-# Describe your paths here
 paths:
   /coverage:
     get:
@@ -17,7 +16,6 @@ paths:
         200:
           description: Successful response
           schema:
-            title: ArrayOfAreas
             type: array
             items:
               title: Area
@@ -36,12 +34,12 @@ paths:
       description: |
         Provides a list of products for a specific location, including optionally (but highly recommended!) information on prices. Optional method, it is recommended to implement `/coverage` instead.
       parameters:
-        - name: lat
+        - name: latitude
           in: query
           type: number
           description: Latitude
           required: true
-        - name: lng
+        - name: longitude
           in: query
           type: number
           description: Longitude
@@ -57,7 +55,9 @@ paths:
   /quote:
     post:
       description: |
-        Requests a non-binding quote for travelling from one location to another. Optional method, but highly recommended.
+        Requests a non-binding quote for travelling from one location to another. If no destination is provided, the response just indicates if the passenger is in a supported area and, optionally, the ETA.
+        
+        Optional method, but highly recommended.
       parameters:
         - name: input
           in: body
@@ -67,37 +67,8 @@ paths:
         200:
           description: Successful response
           schema:
-            title: ArrayOfQuotes
-            type: array
-            items:
-              title: Quote
-              type: object
-              properties:
-                product:
-                  $ref: '#/definitions/Product'
-                price:
-                  title: Price
-                  type: object
-                  properties:
-                    value:
-                      type: integer
-                      description: Estimated cost in smallest possible local currency
-                    currency:
-                      type: string
-                      description: Unambiguous currency identifier, e.g., "EUR" or "USD"
-                pickUpTime:
-                  type: string
-                  description: The estimated pick-up time as ISO-8601 encoded date.
-                pickUpLocation: # If different from requested location.
-                  $ref: '#/definitions/Location'
-                dropOffLocation: # If different from requested location.
-                  $ref: '#/definitions/Location'
-                seats:
-                  type: number
-                  description: Maximum number of available seats for passengers.
-              required:
-                - product
-
+            $ref: '#/definitions/Quotes'
+            
 definitions:
   ProductWithPricing:
     properties:
@@ -107,7 +78,6 @@ definitions:
         $ref: '#/definitions/Pricing'
     required:
       - product
-      - pricing
 
   Product:
     properties:
@@ -119,6 +89,9 @@ definitions:
     required:
       - title
       - id
+    example:
+      title: Premium Taxi
+      id: premium
         
   Pricing:
     properties:
@@ -141,21 +114,31 @@ definitions:
         type: number
       minimumCost:
         type: number
-      
+    required:
+      - currency
+    example:
+      currency: EUR
+      baseCosts:
+        - title: Booking fee
+          value: 3.5
+      costPerMinute: 0.4
+      costPerKm: 1.5
 
   Location:
     properties:
-      lat:
+      latitude:
         type: number
-        description: Latitude
-      lng:
+      longitude:
         type: number
-        description: Longitude
       address:
         type: string
     required:
-      - lat
-      - lng
+      - latitude
+      - longitude
+    example:
+      latitude: 49.457869
+      longitude: 11.075868
+      address: Nuremberg Castle
 
   QuoteInput:
     properties:
@@ -165,12 +148,73 @@ definitions:
         $ref: '#/definitions/Location'
       depart:
         type: string
-        description: ISO-8601 encoded date. Either this or `arrive` is required.
+        description: ISO-8601 formatted date. Either this or `arrive` is required.
       arrive:
         type: string
         description: |
-          ISO-8601 encoded date. Either this or `depart` is required. If this is provided, `destination` is required.
+          ISO-8601 formatted date. Either this or `depart` is required. If this is provided, `destination` is required.
+      passengers:
+        type: integer
+        description: Number of passengers
+      wheelchair:
+        type: boolean
+        description: If a wheelchair-accessible vehicle is required
+        default: false
     required:
       - origin
-      - destination
+    example:
+      origin:
+        latitude: 49.457869
+        longitude: 11.075868
+      destination:
+        latitude: 49.4453
+        longitude: 11.0824
+      depart: "2017-11-15T10:00:00+02:00"
+      passengers: 3
 
+  Quotes:
+    type: array
+    items:
+      properties:
+        product:
+          $ref: '#/definitions/Product'
+        price:
+          title: Price
+          type: object
+          properties:
+            value:
+              type: integer
+              description: Estimated cost in smallest possible local currency
+            currency:
+              type: string
+              description: Unambiguous currency identifier, e.g., "EUR" or "USD"
+          example:
+            currency: EUR
+            value: 14.75
+        pickUpTime:
+          type: string
+          description: The estimated pick-up time as ISO-8601 formatted date.
+        pickUpLocation: # If different from requested location.
+          $ref: '#/definitions/Location'
+        dropOffTime:
+          type: string
+          description: The estimated drop-off time as ISO-8601 formatted date.
+        dropOffLocation: # If different from requested location.
+          $ref: '#/definitions/Location'
+        seats:
+          type: number
+          description: Maximum number of available seats for passengers.
+          minimum: 1
+        wheelchairAccessible:
+          type: boolean
+          description: If the vehicle is wheelchair accessible.
+        bookingActions:
+          type: array
+          items:
+            type: string
+          example:
+            - tel:555-12345
+            - https://www.taxicompany.com/book-now
+            - taxiapp:new-booking
+      required:
+        - product
