@@ -3,8 +3,8 @@ Recommended APIs that transport service providers implement, for them to be easi
 
 Car-Sharing:
 
-- [View in Swagger Editor](http://editor.swagger.io/#/?import=https://raw.githubusercontent.com/skedgo/TSP-APIs/master/car-share.swagger.yaml).
+- [View in Swagger UI](http://petstore.swagger.io/?url=https://raw.githubusercontent.com/skedgo/TSP-APIs/master/car-share.swagger.yaml).
 
 Taxi-(like) Services:
 
-- [View in Swagger Editor](http://editor.swagger.io/#/?import=https://raw.githubusercontent.com/skedgo/TSP-APIs/master/taxi.swagger.yaml).
+- [View in Swagger UI](http://petstore.swagger.io/?url=https://raw.githubusercontent.com/skedgo/TSP-APIs/master/taxi.swagger.yaml).
