@@ -12,7 +12,7 @@ Car-Sharing:
 
 Car Parks:
 
-- [Coming soon](https://github.com/skedgo/TSP-APIs/issues/2)
+- [View in Swagger UI](http://petstore.swagger.io/?url=https://raw.githubusercontent.com/skedgo/TSP-APIs/master/car-park.swagger.yaml)
 
 Taxi-(like) Services:
 
