@@ -10,6 +10,10 @@ Car-Sharing:
 
 - [View in Swagger UI](http://petstore.swagger.io/?url=https://raw.githubusercontent.com/skedgo/TSP-APIs/master/car-share.swagger.yaml).
 
+Car Parks:
+
+- [Coming soon](https://github.com/skedgo/TSP-APIs/issues/2)
+
 Taxi-(like) Services:
 
 - [View in Swagger UI](http://petstore.swagger.io/?url=https://raw.githubusercontent.com/skedgo/TSP-APIs/master/taxi.swagger.yaml).
@@ -20,3 +24,8 @@ Public Transport:
 - Real-time data in [GTFS-Realtime](https://developers.google.com/transit/gtfs-realtime/reference/) (preferred) or [SIRI](http://user47094.vs.easily.co.uk/siri/)
 
 If you use non-standard formats, we can still integrate your service onto our platform, but please [get in touch](mailto:api@tripgo.com) for that.
+
+## Where to see my contribution
+
+* TripGo [Android](https://play.google.com/store/apps/details?id=com.buzzhives.android.tripplanner), [iOS](https://itunes.apple.com/app/tripgo/id533630842), [Web](https://tripgo.com/)
+* [Edit this file](https://github.com/skedgo/tripgo.connect/edit/master/README.md) and make a pull request to add your end-user product
