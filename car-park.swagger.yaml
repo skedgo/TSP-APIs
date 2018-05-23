@@ -1,0 +1,291 @@
+swagger: "2.0"
+
+info:
+  version: 0.0.1
+  title: Car parks
+  x-logo:
+    url: "https://developer.tripgo.com/img/tripgo-api-logo-color.svg"
+  description:
+    Work-in-progress proposal for car park operators to connect their services to SkedGo's platform.
+
+paths:
+  /carparks:
+    get:
+      description: |
+        Provides a list of all car parks (regardless of whether they are currently available or not), including optionally (but highly recommended!) information on prices. Required method.
+      responses:
+        200:
+          description: Successful response
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/CarParkInfo'
+
+definitions:
+  Color:
+    properties:
+      red:
+        type: integer
+        minimum: 0
+        maximum: 255
+      blue:
+        type: integer
+        minimum: 0
+        maximum: 255
+      green:
+        type: integer
+        minimum: 0
+        maximum: 255
+    required:
+      - red
+      - blue
+      - green
+
+  CarParkInfo:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+        description: Car park name
+      address:
+        type: string
+      lat:
+        type: number
+        description: Latitude information
+      lng:
+        type: number
+        description: Longitude inforamtion
+      operator:
+        $ref: '#/definitions/CompanyInfo'
+      totalSpaces:
+        description: Static information of total spaces
+        type: integer
+      open:
+        $ref: '#/definitions/TimePeriod'
+      fares:
+        type: array
+        description: All price schema used. Free is assummed if this array is empty.
+        items:
+          $ref: '#/definitions/FareTable'
+      restrictions:
+        $ref: '#/definitions/Restrictions'
+      entrances:
+        type: array
+        items:
+          $ref: '#/definitions/Entrance'
+      source:
+        $ref: '#/definitions/DataSourceAttribution'
+      info:
+        type: string
+        description: Additional information about this car park.
+      maxHeightInMetres:
+        type: integer
+        minimum: 0
+        description: Maximun height allowed.
+      link:
+        type: string
+        description: Specific URL which identifies this car park.
+      avalability:
+        $ref: '#/definitions/RealtimeStatus'
+    required:
+      - identifier
+      - lat
+      - lng
+      - name
+      - address
+
+  TimePeriod:
+    description: Information about time periods
+    type: string
+    example:
+      - "24/7" # all week
+      - "Mo-Fr" # all day from Mondays to Fridays
+      - "08:00-21:00" # all week from 8:00 to 21:00
+      - "Mo-Fr 06:30-21:00; Sa 08:00-14:00"  # a very descriptive example
+
+  CompanyInfo:
+    properties:
+      name:
+        type: string
+      phone:
+        type: string
+      website:
+        type: string
+        format: url
+      color:
+        $ref: '#/definitions/Color'
+    required:
+      - name
+
+  DataSourceAttribution:
+    description:
+      Information on how data should get attributed. When present, this needs to get displayed on relevant screens / views.
+    properties:
+      provider:
+        $ref: '#/definitions/CompanyInfo'
+      disclaimer:
+        type: string
+        description: Longer disclaimer that should be displayed for this provider
+    required:
+      - provider
+
+  FareTable:
+    properties:
+      title:
+        type: string
+        description: descriptive fare title
+      category:
+        type: string
+        description: additional informatinon in case this pricing applies to a specif group, like "DISABLED".
+      times:
+        $ref: '#/definitions/TimePeriod'
+      freeDuringOutHours:
+        type: boolean
+        description: if true, pricing is free when car park is closed.
+      currency:
+        type: string
+      prices:
+        type: array
+        items:
+          $ref: '#/definitions/Price'
+    required:
+      - times
+      - currency
+      - prices
+    example:
+      - times: 06:00 - 22:00
+      - title: Regular fare
+      - currency: AUD
+      - prices:
+        - maxDurationInMinutes: 60
+          price: 20
+        - type: time
+          maxDurationInMinutes: 120
+          price: 32
+        - type: additional
+          maxDurationInMinutes: 60
+          price: 10
+        - type: daytime
+          amount: 56
+
+  Price:
+    type: object
+    properties:
+      type:
+        type: string
+        description: Fare type. Could be "time" based or not. The "additional" type refers to additional minutes defined on $maxDurationInMinutes
+        enum: [time, additional, daytime, minimum, maximun, evening, overnight]
+      amount:
+        type: number
+        description: price in local curreny.
+      maxDurationInMinutes:
+        type: integer
+        minimum: 0
+        description: maximun duration for this price in minutes
+      extraArgs:
+        type: string
+        description: additional information which chould be needed.
+    required:
+      - amount
+
+  Restrictions:
+    description: Information about the car park restrictions.
+    properties:
+      maxStayInMinutes:
+        description: Maximun stay time in minutes
+        type: integer
+        minimum: 0
+      noRestrictionWhenClosed:
+        description: If this is `true`, the restrictions applies only during the time zone defined in `openingHours`
+        type: boolean
+      allowedOnly:
+        description: Only the vehicles which satisfy these requirements could stay
+        type: array
+        items:
+          type: string
+          enum:
+            - SUBSCRIBERS
+            - VISITORS
+            - CUSTOMERS
+            - PERMIT_HOLDERS
+            - EVENTS
+            - VALET
+            - DISABLED
+            - COACH
+            - MOTORCYCLES
+      notAllowed:
+        description: The vehicle types which are not allowed to stay
+        type: array
+        items:
+          type: string
+          enum:
+            - SUVS
+            - LPG_CARS
+    example:
+      maxStayInMinutes: 120
+      noRestrictionWhenClosed: true
+      allowedOnly: CUSTOMERS
+
+  Entrance:
+    description: Information about the car park entrance.
+    properties:
+      type:
+        description: Entrance type identifier
+        type: string
+        enum:
+            - ENTRANCE_EXIT
+            - ENTRANCE_ONLY
+            - EXIT_ONLY
+            - PEDESTRIAN
+            - DISABLED_PEDESTRIAN
+            - PERMIT
+      address:
+        type: string
+      lat:
+        type: number
+        description: Latitude
+      lng:
+        type: number
+        description: Longitude
+    required:
+      - type
+      - lat
+      - lng
+
+  RealtimeStatus:
+    description: Realtime status information.
+    properties:
+      isOpen:
+        type: boolean
+        description: true if car park is open today.
+      totalSpaces:
+        type: integer
+        minimum: 0
+        description: Parking spots which could be used.
+      availableSpaces:
+        type: integer
+        minimum: 0
+        description: Available parking spots which are free now.
+      opens:
+        type: string
+        description: Opening time.
+      closes:
+        type: string
+        description: Closing time.
+      lastUpdated:
+        type: string
+        format: date-time
+        description: Last updated time in ISO 8601 format.
+      source:
+        $ref: '#/definitions/CompanyInfo'
+    required:
+      - availableSpaces
+      - lastUpdated
+    example:
+      isOpen: true
+      lastUpdated: "2018-05-23T12:52:02Z"
+      opens: "00:00"
+      availableSpaces: 19
+      totalSpaces": 61
+      closes: "24:00"
