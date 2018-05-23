@@ -25,6 +25,15 @@ Public Transport:
 
 If you use non-standard formats, we can still integrate your service onto our platform, but please [get in touch](mailto:api@tripgo.com) for that.
 
+
+## Registry
+
+Existing implementations are tagged on GitHub with [`tsp-apis`](https://github.com/topics/tsp-apis).
+
+- Car Parks:
+  - [Nuremberg, Germany](https://github.com/skedgo/de-nuremberg-api)
+  
+
 ## Where to see my contribution
 
 * TripGo [Android](https://play.google.com/store/apps/details?id=com.buzzhives.android.tripplanner), [iOS](https://itunes.apple.com/app/tripgo/id533630842), [Web](https://tripgo.com/)
