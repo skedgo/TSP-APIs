@@ -22,25 +22,6 @@ paths:
               $ref: '#/definitions/CarParkInfo'
 
 definitions:
-  Color:
-    properties:
-      red:
-        type: integer
-        minimum: 0
-        maximum: 255
-      blue:
-        type: integer
-        minimum: 0
-        maximum: 255
-      green:
-        type: integer
-        minimum: 0
-        maximum: 255
-    required:
-      - red
-      - blue
-      - green
-
   CarParkInfo:
     properties:
       id:
@@ -50,19 +31,16 @@ definitions:
         description: Car park name
       address:
         type: string
-      lat:
-        type: number
-        description: Latitude information
-      lng:
-        type: number
-        description: Longitude inforamtion
+      coordinates:
+        $ref: '#/definitions/GeoCoordinates'
       operator:
-        $ref: '#/definitions/CompanyInfo'
+        $ref: '#/definitions/Provider'
       totalSpaces:
         description: Static information of total spaces
         type: integer
       open:
-        $ref: '#/definitions/TimePeriod'
+        description: opening times based on 'http://schema.org/openingHours'
+        type: string
       fares:
         type: array
         description: All price schema used. Free is assummed if this array is empty.
@@ -90,31 +68,44 @@ definitions:
         $ref: '#/definitions/RealtimeStatus'
     required:
       - identifier
-      - lat
-      - lng
+      - coordinates
       - name
       - address
 
-  TimePeriod:
-    description: Information about time periods
-    type: string
-    example:
-      - "24/7" # all week
-      - "Mo-Fr" # all day from Mondays to Fridays
-      - "08:00-21:00" # all week from 8:00 to 21:00
-      - "Mo-Fr 06:30-21:00; Sa 08:00-14:00"  # a very descriptive example
+  GeoCoordinates:
+    # based on 'http://schema.org/GeoCoordinates'
+    properties:
+      latitude:
+        type: number
+        description: Latitude information
+      longitude:
+        type: number
+        description: Longitude information
+      # other fields that could be added:
+      #  - address
+      #  - addressCountry
+      #  - postalcode
+      #  - elevation
+    required:
+      - latitude
+      - longitude
 
-  CompanyInfo:
+  Provider:
+    # based on: 'http://schema.org/provider' and ' https://schema.org/Organization'
     properties:
       name:
         type: string
-      phone:
+      address:
         type: string
-      website:
+      url:
         type: string
-        format: url
-      color:
-        $ref: '#/definitions/Color'
+      telephone:
+        type: string
+      logo:
+        type: string
+      image:
+        type: string
+
     required:
       - name
 
@@ -123,7 +114,7 @@ definitions:
       Information on how data should get attributed. When present, this needs to get displayed on relevant screens / views.
     properties:
       provider:
-        $ref: '#/definitions/CompanyInfo'
+        $ref: '#/definitions/Provider'
       disclaimer:
         type: string
         description: Longer disclaimer that should be displayed for this provider
@@ -139,7 +130,8 @@ definitions:
         type: string
         description: additional informatinon in case this pricing applies to a specif group, like "DISABLED".
       times:
-        $ref: '#/definitions/TimePeriod'
+        type: string
+        description: based on 'http://schema.org/openingHours'
       freeDuringOutHours:
         type: boolean
         description: if true, pricing is free when car park is closed.
@@ -278,7 +270,7 @@ definitions:
         format: date-time
         description: Last updated time in ISO 8601 format.
       source:
-        $ref: '#/definitions/CompanyInfo'
+        $ref: '#/definitions/Provider'
     required:
       - availableSpaces
       - lastUpdated
