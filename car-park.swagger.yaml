@@ -39,8 +39,7 @@ definitions:
         description: Static information of total spaces
         type: integer
       open:
-        description: opening times based on 'http://schema.org/openingHours'
-        type: string
+        $ref: '#/definitions/OpeningHours'
       fares:
         type: array
         description: All price schema used. Free is assummed if this array is empty.
@@ -72,8 +71,16 @@ definitions:
       - name
       - address
 
+  OpeningHours:
+    type: string
+    description: Opening times
+    externalDocs:
+     url: "http://schema.org/openingHours"
+
   GeoCoordinates:
-    # based on 'http://schema.org/GeoCoordinates'
+    description: The geographic coordinates of a place or event.
+    externalDocs:
+      url: "http://schema.org/GeoCoordinates"
     properties:
       latitude:
         type: number
@@ -81,8 +88,10 @@ definitions:
       longitude:
         type: number
         description: Longitude information
+      address:
+        type: string
+        description: Physical address of the item.
       # other fields that could be added:
-      #  - address
       #  - addressCountry
       #  - postalcode
       #  - elevation
@@ -91,7 +100,9 @@ definitions:
       - longitude
 
   Provider:
-    # based on: 'http://schema.org/provider' and ' https://schema.org/Organization'
+    # based on: 'http://schema.org/provider'
+    externalDocs:
+      url: 'https://schema.org/Organization'
     properties:
       name:
         type: string
@@ -128,10 +139,9 @@ definitions:
         description: descriptive fare title
       category:
         type: string
-        description: additional informatinon in case this pricing applies to a specif group, like "DISABLED".
+        description: additional informatinon in case this pricing applies to a specif group, like 'DISABLED'.
       times:
-        type: string
-        description: based on 'http://schema.org/openingHours'
+        $ref: '#/definitions/OpeningHours'
       freeDuringOutHours:
         type: boolean
         description: if true, pricing is free when car park is closed.
@@ -146,18 +156,18 @@ definitions:
       - currency
       - prices
     example:
-      - times: 06:00 - 22:00
-      - title: Regular fare
-      - currency: AUD
-      - prices:
+      times: 06:00 - 22:00
+      title: Regular fare
+      currency: AUD
+      prices:
         - maxDurationInMinutes: 60
-          price: 20
-        - type: time
-          maxDurationInMinutes: 120
+          price: 20,
+          type: time
+        - maxDurationInMinutes: 120
           price: 32
         - type: additional
           maxDurationInMinutes: 60
-          price: 10
+          price: 10,
         - type: daytime
           amount: 56
 
@@ -166,7 +176,7 @@ definitions:
     properties:
       type:
         type: string
-        description: Fare type. Could be "time" based or not. The "additional" type refers to additional minutes defined on $maxDurationInMinutes
+        description: Fare type. Could be 'time' based or not. The 'additional' type refers to additional minutes defined on $maxDurationInMinutes
         enum: [time, additional, daytime, minimum, maximun, evening, overnight]
       amount:
         type: number
@@ -275,9 +285,9 @@ definitions:
       - availableSpaces
       - lastUpdated
     example:
-      isOpen: true
-      lastUpdated: "2018-05-23T12:52:02Z"
-      opens: "00:00"
-      availableSpaces: 19
-      totalSpaces": 61
-      closes: "24:00"
+      - isOpen: true
+        lastUpdated: '2018-05-23T12:52:02Z'
+        opens: '00:00'
+        availableSpaces: 19
+        totalSpaces": 61
+        closes: '24:00'
