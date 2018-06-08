@@ -76,6 +76,12 @@ definitions:
     description: Opening times
     externalDocs:
      url: "http://schema.org/openingHours"
+    example:
+      - "Mo-Su" # all week
+      - "Mo-Fr" # all day from Mondays to Fridays
+      - "Mo-Su 08:00-21:00" # all week from 8:00 to 21:00
+      - "Tu,Th 08:00-12:00" # Tuesdays and Thursdays from 8:00 to 12:00
+      - ["Mo-Fr 06:30-21:00", "Sa 08:00-14:00"]  # using an array for a complex one
 
   GeoCoordinates:
     description: The geographic coordinates of a place or event.
@@ -161,13 +167,13 @@ definitions:
       currency: AUD
       prices:
         - maxDurationInMinutes: 60
-          price: 20,
-          type: time
-        - maxDurationInMinutes: 120
-          price: 32
+          amount: 20
+        - type: time
+          maxDurationInMinutes: 120
+          amount: 32
         - type: additional
           maxDurationInMinutes: 60
-          price: 10,
+          amount: 10
         - type: daytime
           amount: 56
 
