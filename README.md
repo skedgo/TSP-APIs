@@ -37,4 +37,5 @@ Existing implementations are tagged on GitHub with [`tsp-apis`](https://github.c
 ## Where to see my contribution
 
 * TripGo [Android](https://play.google.com/store/apps/details?id=com.buzzhives.android.tripplanner), [iOS](https://itunes.apple.com/app/tripgo/id533630842), [Web](https://tripgo.com/)
+* Other [apps using the TripGo API](https://skedgo.com/tripgo-api/)
 * [Edit this file](https://github.com/skedgo/tripgo.connect/edit/master/README.md) and make a pull request to add your end-user product
