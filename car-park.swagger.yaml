@@ -22,29 +22,90 @@ paths:
               $ref: '#/definitions/CarParkInfo'
 
 definitions:
+  RGBColor:
+    properties:
+      red:
+        type: integer
+        minimum: 0
+        maximum: 255
+      blue:
+        type: integer
+        minimum: 0
+        maximum: 255
+      green:
+        type: integer
+        minimum: 0
+        maximum: 255
+    required:
+      - red
+      - blue
+      - green
+
+  ImageObject:
+      description: Image stored remotely
+      externalDocs:
+        url: "http://schema.org/ImageObject"
+      properties:
+        caption:
+          type: string
+          description: The caption for this object
+        contentUrl:
+          type: string
+          description: URL to download image
+        fileFormat:
+          type: string
+          description: Media type of image
+          externalDocs:
+            url: "http://schema.org/fileFormat"
+        width:
+          type: integer
+          description: Width in pixels
+        height:
+          type: integer
+          description: Height in pixels
+      required:
+        - contentUrl
+
   CarParkInfo:
+    externalDocs:
+      url: 'https://fiware-datamodels.readthedocs.io/en/latest/Parking/OffStreetParking/doc/spec/index.html'
     properties:
       id:
         type: string
       name:
         type: string
         description: Car park name
+        externalDocs:
+          url: "http://schema.org/name"
       address:
         type: string
+        externalDocs:
+          url: "http://schema.org/address"
       coordinates:
         $ref: '#/definitions/GeoCoordinates'
-      operator:
-        $ref: '#/definitions/Provider'
-      totalSpaces:
+      provider:
+        $ref: '#/definitions/CompanyInfo'
+      totalSpotNumber:
         description: Static information of total spaces
         type: integer
-      open:
-        $ref: '#/definitions/OpeningHours'
-      fares:
+      avalableSpotNumber:
+        description: Real-time information of total spaces
+        type: integer
+      timestamp:
+        type: string
+        format: date-time
+        description: Timestamp `availableSpotNumber` got recorded in ISO8601 format
+      openingHours:
         type: array
-        description: All price schema used. Free is assummed if this array is empty.
         items:
-          $ref: '#/definitions/FareTable'
+          $ref: '#/definitions/OpeningHours'
+        example:
+          - ["Mo-Fr 06:30-21:00", "Sa 08:00-14:00"]
+      pricingTable:
+          description: The pricing schemas used. Free is assummed if this array is empty.
+          type: array
+          items:
+            $ref: '#/definitions/PricingTable'
       restrictions:
         $ref: '#/definitions/Restrictions'
       entrances:
@@ -66,14 +127,14 @@ definitions:
       avalability:
         $ref: '#/definitions/RealtimeStatus'
     required:
-      - identifier
+      - id
       - coordinates
       - name
       - address
 
   OpeningHours:
     type: string
-    description: Opening times
+    description: Opening times period
     externalDocs:
      url: "http://schema.org/openingHours"
     example:
@@ -81,7 +142,6 @@ definitions:
       - "Mo-Fr" # all day from Mondays to Fridays
       - "Mo-Su 08:00-21:00" # all week from 8:00 to 21:00
       - "Tu,Th 08:00-12:00" # Tuesdays and Thursdays from 8:00 to 12:00
-      - ["Mo-Fr 06:30-21:00", "Sa 08:00-14:00"]  # using an array for a complex one
 
   GeoCoordinates:
     description: The geographic coordinates of a place or event.
@@ -105,23 +165,24 @@ definitions:
       - latitude
       - longitude
 
-  Provider:
-    # based on: 'http://schema.org/provider'
+  CompanyInfo:
     externalDocs:
-      url: 'https://schema.org/Organization'
+      url: 'https://schema.org/provider'
     properties:
       name:
         type: string
       address:
         type: string
-      url:
+      phone:
         type: string
-      telephone:
+      website:
         type: string
-      logo:
-        type: string
-      image:
-        type: string
+      logos:
+        type: array
+        items:
+          $ref: '#/definitions/ImageObject'
+      color:
+        $ref: '#/definitions/RGBColor'
 
     required:
       - name
@@ -131,14 +192,14 @@ definitions:
       Information on how data should get attributed. When present, this needs to get displayed on relevant screens / views.
     properties:
       provider:
-        $ref: '#/definitions/Provider'
+        $ref: '#/definitions/CompanyInfo'
       disclaimer:
         type: string
         description: Longer disclaimer that should be displayed for this provider
     required:
       - provider
 
-  FareTable:
+  PricingTable:
     properties:
       title:
         type: string
@@ -286,7 +347,7 @@ definitions:
         format: date-time
         description: Last updated time in ISO 8601 format.
       source:
-        $ref: '#/definitions/Provider'
+        $ref: '#/definitions/CompanyInfo'
     required:
       - availableSpaces
       - lastUpdated
