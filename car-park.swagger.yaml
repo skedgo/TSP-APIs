@@ -22,7 +22,7 @@ paths:
               $ref: '#/definitions/CarParkInfo'
 
 definitions:
-  Color:
+  RGBColor:
     properties:
       red:
         type: integer
@@ -41,33 +41,71 @@ definitions:
       - blue
       - green
 
+  ImageObject:
+      description: Image stored remotely
+      externalDocs:
+        url: "http://schema.org/ImageObject"
+      properties:
+        caption:
+          type: string
+          description: The caption for this object
+        contentUrl:
+          type: string
+          description: URL to download image
+        fileFormat:
+          type: string
+          description: Media type of image
+          externalDocs:
+            url: "http://schema.org/fileFormat"
+        width:
+          type: integer
+          description: Width in pixels
+        height:
+          type: integer
+          description: Height in pixels
+      required:
+        - contentUrl
+
   CarParkInfo:
+    externalDocs:
+      url: 'https://fiware-datamodels.readthedocs.io/en/latest/Parking/OffStreetParking/doc/spec/index.html'
     properties:
       id:
         type: string
       name:
         type: string
         description: Car park name
+        externalDocs:
+          url: "http://schema.org/name"
       address:
         type: string
-      lat:
-        type: number
-        description: Latitude information
-      lng:
-        type: number
-        description: Longitude inforamtion
-      operator:
+        externalDocs:
+          url: "http://schema.org/address"
+      coordinates:
+        $ref: '#/definitions/GeoCoordinates'
+      provider:
         $ref: '#/definitions/CompanyInfo'
-      totalSpaces:
+      totalSpotNumber:
         description: Static information of total spaces
         type: integer
-      open:
-        $ref: '#/definitions/TimePeriod'
-      fares:
+      avalableSpotNumber:
+        description: Real-time information of total spaces
+        type: integer
+      timestamp:
+        type: string
+        format: date-time
+        description: Timestamp `availableSpotNumber` got recorded in ISO8601 format
+      openingHours:
         type: array
-        description: All price schema used. Free is assummed if this array is empty.
         items:
-          $ref: '#/definitions/FareTable'
+          $ref: '#/definitions/OpeningHours'
+        example:
+          - ["Mo-Fr 06:30-21:00", "Sa 08:00-14:00"]
+      pricingTable:
+          description: The pricing schemas used. Free is assummed if this array is empty.
+          type: array
+          items:
+            $ref: '#/definitions/PricingTable'
       restrictions:
         $ref: '#/definitions/Restrictions'
       entrances:
@@ -89,32 +127,63 @@ definitions:
       avalability:
         $ref: '#/definitions/RealtimeStatus'
     required:
-      - identifier
-      - lat
-      - lng
+      - id
+      - coordinates
       - name
       - address
 
-  TimePeriod:
-    description: Information about time periods
+  OpeningHours:
     type: string
+    description: Opening times period
+    externalDocs:
+     url: "http://schema.org/openingHours"
     example:
-      - "24/7" # all week
+      - "Mo-Su" # all week
       - "Mo-Fr" # all day from Mondays to Fridays
-      - "08:00-21:00" # all week from 8:00 to 21:00
-      - "Mo-Fr 06:30-21:00; Sa 08:00-14:00"  # a very descriptive example
+      - "Mo-Su 08:00-21:00" # all week from 8:00 to 21:00
+      - "Tu,Th 08:00-12:00" # Tuesdays and Thursdays from 8:00 to 12:00
+
+  GeoCoordinates:
+    description: The geographic coordinates of a place or event.
+    externalDocs:
+      url: "http://schema.org/GeoCoordinates"
+    properties:
+      latitude:
+        type: number
+        description: Latitude information
+      longitude:
+        type: number
+        description: Longitude information
+      address:
+        type: string
+        description: Physical address of the item.
+      # other fields that could be added:
+      #  - addressCountry
+      #  - postalcode
+      #  - elevation
+    required:
+      - latitude
+      - longitude
 
   CompanyInfo:
+    externalDocs:
+      url: 'https://schema.org/provider'
     properties:
       name:
+        type: string
+      address:
         type: string
       phone:
         type: string
       website:
         type: string
-        format: url
+      logos:
+        type: array
+        items:
+          $ref: '#/definitions/ImageObject'
       color:
-        $ref: '#/definitions/Color'
+        $ref: '#/definitions/RGBColor'
+
     required:
       - name
 
@@ -130,16 +199,16 @@ definitions:
     required:
       - provider
 
-  FareTable:
+  PricingTable:
     properties:
       title:
         type: string
         description: descriptive fare title
       category:
         type: string
-        description: additional informatinon in case this pricing applies to a specif group, like "DISABLED".
+        description: additional informatinon in case this pricing applies to a specif group, like 'DISABLED'.
       times:
-        $ref: '#/definitions/TimePeriod'
+        $ref: '#/definitions/OpeningHours'
       freeDuringOutHours:
         type: boolean
         description: if true, pricing is free when car park is closed.
@@ -154,18 +223,18 @@ definitions:
       - currency
       - prices
     example:
-      - times: 06:00 - 22:00
-      - title: Regular fare
-      - currency: AUD
-      - prices:
+      times: 06:00 - 22:00
+      title: Regular fare
+      currency: AUD
+      prices:
         - maxDurationInMinutes: 60
-          price: 20
+          amount: 20
         - type: time
           maxDurationInMinutes: 120
-          price: 32
+          amount: 32
         - type: additional
           maxDurationInMinutes: 60
-          price: 10
+          amount: 10
         - type: daytime
           amount: 56
 
@@ -174,7 +243,7 @@ definitions:
     properties:
       type:
         type: string
-        description: Fare type. Could be "time" based or not. The "additional" type refers to additional minutes defined on $maxDurationInMinutes
+        description: Fare type. Could be 'time' based or not. The 'additional' type refers to additional minutes defined on $maxDurationInMinutes
         enum: [time, additional, daytime, minimum, maximun, evening, overnight]
       amount:
         type: number
@@ -283,9 +352,9 @@ definitions:
       - availableSpaces
       - lastUpdated
     example:
-      isOpen: true
-      lastUpdated: "2018-05-23T12:52:02Z"
-      opens: "00:00"
-      availableSpaces: 19
-      totalSpaces": 61
-      closes: "24:00"
+      - isOpen: true
+        lastUpdated: '2018-05-23T12:52:02Z'
+        opens: '00:00'
+        availableSpaces: 19
+        totalSpaces": 61
+        closes: '24:00'
