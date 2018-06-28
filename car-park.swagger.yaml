@@ -1,7 +1,7 @@
 swagger: "2.0"
 
 info:
-  version: 0.0.1
+  version: 0.1.0
   title: Car parks
   x-logo:
     url: "https://developer.tripgo.com/img/tripgo-api-logo-color.svg"
@@ -116,21 +116,20 @@ definitions:
         $ref: '#/definitions/DataSourceAttribution'
       info:
         type: string
-        description: Additional information about this car park.
+        description: Additional information about this car park
       maxHeightInMetres:
-        type: integer
+        type: number
         minimum: 0
-        description: Maximun height allowed.
+        description: Maximum height allowed
       link:
         type: string
-        description: Specific URL which identifies this car park.
+        description: Specific URL which identifies this car park
       avalability:
         $ref: '#/definitions/RealtimeStatus'
     required:
       - id
       - coordinates
       - name
-      - address
 
   OpeningHours:
     type: string
