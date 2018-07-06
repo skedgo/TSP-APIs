@@ -1,0 +1,445 @@
+swagger: "2.0"
+
+host: api.skegdo.com
+info:
+  title: Bike Share API
+  version: 0.1.0
+  x-logo:
+    url: "https://developer.tripgo.com/img/tripgo-api-logo-color.svg"
+  description: |
+    Work-in-progress proposal for a bike share APIs used to connect to SkedGo's platform.
+
+    Returns information in GeoJSON
+
+consumes:
+- application/json
+produces:
+- application/json
+schemes:
+- https
+
+paths:
+  /system:
+    get:
+      summary: Get all supported bike systems
+      description: |
+        Bike systems are individual bike share systems, often per-region.
+
+        Information about each system is returned as a GeoJSON Feature, within a single GeoJSON
+        FeatureCollection.
+
+        See the [/system/{system_id}](#operation/get_bike_system) call for more
+        details on the individual system Features.
+
+      operationId: retrieve_bike_systems
+      parameters:
+      - $ref: '#/parameters/APIAccessKey'
+      responses:
+        200:
+          description: Detailed information on the bike systems in the requested search
+            area.
+          schema:
+            $ref: '#/definitions/BikeSystemFeatureCollection'
+        403:
+          description: This method requires an `x-access_key` and it is either missing
+            or invalid, or the the credentials provided are not sufficient for access
+            to the specified resource.
+          schema:
+            $ref: '#/definitions/Error'
+  /system/{system_id}:
+    get:
+      summary: Get detailed information on a bike system
+      description: |
+        Bike systems are individual bike share systems, often per-region.
+
+        Information is returned as a GeoJSON Feature. The geometry of the GeoJSON Feature is
+        a MultiPolygon that defines the system's operational area. All bike systems have an
+        operational area, in which bikes may be found and parked.
+        For systems that require bikes be docked, this area is somewhat arbitrary, as bikes are
+        only found at stations. In this case, the operational area is roughly the city or
+        jurisdiction that the system covers.
+        For semi-dockless and dockless systems that allow bikes to be parked anywhere, the
+        operational area is very important and strictly defined. Often there are extra fees for
+        parking outside of the operational area (also known as a "catchment area"), and almost all
+        bikes should be within the area.
+
+        These bike system types are reflected in the `station_type` property.
+        * `dock` - All bikes must be taken from and returned to a dock.
+        * `dockless` - All bikes are only dockless.
+        * `dockless_with_hub` - Bikes may be dockless, or taken from or returned to a hub.
+        A hub can be an area rather than a discrete station, where a bike can be returned and
+        locked but not explicitly docked. The total price of a rental may change based on whether
+        a bike is returned to a hub or not.
+
+        Areas are returned as a GeoJSON MultiPolygon since areas may be discontiguous or have
+        holes.
+      operationId: get_bike_system
+      parameters:
+      - $ref: '#/parameters/SystemIDParam'
+      - $ref: '#/parameters/APIAccessKey'
+      responses:
+        200:
+          description: Detailed information on the requested bike system.
+          headers:
+            Access-Control-Allow-Origin:
+              default: '*'
+              type: string
+          schema:
+            $ref: '#/definitions/BikeSystemFeature'
+        403:
+          description: This method requires an `x-access_key` and it is either missing
+            or invalid, or the the credentials provided are not sufficient for access
+            to the specified resource.
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: A bike system was not found for the specified system_id.
+          schema:
+            $ref: '#/definitions/Error'
+  /location:
+    get:
+      summary: Get bike locations in the requested search area
+      description: |
+        Get a list of locations given the input parameters. Specify a search area by radius around
+        a latitude and longitude, as well as any filter for specific systems. Each location will
+        be a GeoJSON Feature, and aggregated into a GeoJSON FeatureCollection.
+      operationId: search_locations
+      parameters:
+      - $ref: '#/parameters/APIAccessKey'
+      - name: latitude
+        description: Latitude to return results for.
+        format: double
+        in: query
+        required: true
+        type: number
+        example: 40.742867
+      - name: longitude
+        description: Longitude to return results for.
+        format: double
+        in: query
+        required: true
+        type: number
+        example: -73.98919
+      - name: radius_km
+        description: |
+          Distance, in kilometers, from (latitude, longitude) we will return results for.
+        format: double
+        in: query
+        required: true
+        type: number
+        example: 0.25
+      responses:
+        200:
+          description: |
+            A list of the locations for the given request. Each location will be a GeoJSON Feature
+            as part of a FeatureCollection, and have information about rentals and returns.
+          schema:
+            $ref: '#/definitions/BikeLocationList'
+        403:
+          description: This method requires an `x-access_key` and it is either missing
+            or invalid, or the the credentials provided are not sufficient for access
+            to the specified resource.
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /location/{system_id}:
+    get:
+      summary: Get all bike locations of a system
+      description: |
+        Get a list of locations for the given system. Each location will
+        be a GeoJSON Feature, and aggregated into a GeoJSON FeatureCollection.
+      operationId: get_system_locations
+      parameters:
+      - $ref: '#/parameters/APIAccessKey'
+      - $ref: '#/parameters/SystemIDParam'
+      responses:
+        200:
+          description: |
+            A list of the locations for the given request. Each location will be a GeoJSON Feature
+            as part of a FeatureCollection, and have information about rentals and returns.
+          schema:
+            $ref: '#/definitions/BikeLocationList'
+        403:
+          description: This method requires an `x-access_key` and it is either missing
+            or invalid, or the the credentials provided are not sufficient for access
+            to the specified resource.
+          schema:
+            $ref: '#/definitions/Error'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /location/{system_id}/{location_id}:
+    get:
+      summary: Get detailed information on a bike location
+      description: |
+        A bike location may be a single bike station (which can have multiple docked bikes) or a
+        single dockless bike itself. All working docks are returned, but only free and rentable
+        dockless bikes are returned.
+
+      operationId: get_bike_location
+      parameters:
+      - $ref: '#/parameters/APIAccessKey'
+      - $ref: '#/parameters/SystemIDParam'
+      - $ref: '#/parameters/LocationIDParam'
+      responses:
+        200:
+          description: Detailed information on the requested bike location, as a GeoJSON
+            Feature.
+          schema:
+            $ref: '#/definitions/BikeLocationFeature'
+        403:
+          description: This method requires an `x-access_key` and it is either missing
+            or invalid, or the the credentials provided are not sufficient for access
+            to the specified resource.
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: A bike location was not found for the specified location_id
+            and system_id.
+          schema:
+            $ref: '#/definitions/Error'
+
+
+
+definitions:
+  BikeLocationFeature:
+    description: A bike location, as a GeoJSON Feature.
+    properties:
+      geometry:
+        $ref: '#/definitions/PointGeometry'
+      id:
+        description: |
+          The ID of the bike location, set by the server. Currently, this is not a permanent value
+          - use `system_id` and `station_id` instead!
+        type: string
+      properties:
+        $ref: '#/definitions/BikeLocationFeatureProperties'
+      type:
+        enum:
+        - Feature
+        type: string
+    required:
+    - type
+    - geometry
+    - properties
+    - id
+    type: object
+  BikeLocationFeatureProperties:
+    properties:
+      is_renting:
+        description: Whether or not the location is currently renting bikes.
+        type: boolean
+      is_returning:
+        description: Whether or not the location is accepting bike returns.
+        type: boolean
+      last_reported:
+        description: The last time the location's information was checked, in ISO-8601
+          format.
+        format: date-time
+        type: string
+        example: 2017-03-12T14:00:00-07:00
+      location:
+        description: GeoLocation of the bike
+        $ref: './shared/common.swagger.yaml#/definitions/GeoCoordinates'
+      location_id:
+        description: The ID of the bike location. This is a GBFS station_id or bike_id.
+        type: string
+        example: "25"
+      location_type:
+        $ref: '#/definitions/BikeLocationType'
+      name:
+        description: The name of the bike location.
+        type: string
+      num_bikes_available:
+        description: The number of bikes that the location has available for rent.
+        format: int64
+        type: number
+        example: 10
+      num_docks_available:
+        description: The number of docks that the location has available for returns.
+        format: int64
+        type: number
+        example: 5
+      region_id:
+        description: The region ID string for the bike location.
+        type: string
+        x-nullable: true
+      system_id:
+        description: The ID of the bike system, set by the server.
+        type: string
+    required:
+    - name
+    - location_id
+    - location_type
+    - system_id
+    - location
+    - num_bikes_available
+    - last_reported
+    - is_renting
+    type: object
+  BikeLocationList:
+    description: A list of bike locations, as a GeoJSON FeatureCollection.
+    properties:
+      features:
+        items:
+          $ref: '#/definitions/BikeLocationFeature'
+        type: array
+      type:
+        enum:
+        - FeatureCollection
+        type: string
+    required:
+    - type
+    - features
+    type: object
+  BikeLocationType:
+    description: A type of bike location. A bike station with docks is a 'bike_station_dock'.
+      A bike station without docks where bikes may be left but not docked, is a 'bike_station_hub'.
+      A bike that is not in a station is a 'free_bike'.
+    enum:
+    - free_bike
+    - bike_station_dock
+    - bike_station_hub
+    type: string
+    example: bike_station
+    x-nullable: true
+  BikeSystemFeature:
+    description: Information about a bike system, as a GeoJSON Feature.
+    properties:
+      geometry:
+        $ref: '#/definitions/MultiPolygonGeometry'
+      id:
+        description: The ID of the bike system, set by the server.
+        type: string
+      properties:
+        $ref: '#/definitions/BikeSystemFeatureProperties'
+      type:
+        enum:
+        - Feature
+        type: string
+    required:
+    - type
+    - geometry
+    - properties
+    - id
+    type: object
+  BikeSystemFeatureCollection:
+    description: Information about bike systems, as a GeoJSON FeatureCollection.
+    properties:
+      features:
+        items:
+          $ref: '#/definitions/BikeSystemFeature'
+        type: array
+      type:
+        enum:
+        - FeatureCollection
+        type: string
+    required:
+    - type
+    - features
+    type: object
+  BikeSystemFeatureProperties:
+    properties:
+      company:
+        description: Data of the compnay provider of the bike system
+        $ref: './shared/common.swagger.yaml#/definitions/CompanyInfo'
+      cities:
+        description: Cities where the bike system operates in
+        type: string
+        x-nullable: true
+      pricing_model:
+        description: Pricing model of the bike system
+        $ref: './shared/pricing.yaml#/definitions/pricing_model'
+      is_transactable:
+        description: Whether the API supports transactions for this system. This includes
+          getting quotes, buying passes, and renting bikes.
+        type: boolean
+      station_type:
+        description: What type of stations the bike system has. A system where bikes
+          are only taken from/returned to docks has a station_type of 'dock'. Fully
+          dockless systems have a station_type of 'dockless'. A system where bikes
+          can be dockless or taken from/returned to hubs but not explicitly docked
+          has a station_type of 'dockless_with_hub'.
+        enum:
+        - dock
+        - dockless_with_hub
+        - dockless
+        type: string
+        x-nullable: true
+    type: object
+  Error:
+    properties:
+      code:
+        format: int32
+        type: integer
+      message:
+        type: string
+    type: object
+  MultiPolygonGeometry:
+    description: A GeoJSON MultiPolygon geometry.
+    properties:
+      coordinates:
+        items:
+          items:
+            items:
+              description: A single (X, Y) or (longitude, latitude) coordinate pair.
+              items:
+                format: double
+                type: number
+              maxItems: 2
+              minItems: 2
+              type: array
+            type: array
+          type: array
+        type: array
+      type:
+        enum:
+        - MultiPolygon
+        type: string
+    required:
+    - type
+    - coordinates
+    type: object
+  PointGeometry:
+    description: A GeoJSON Point geometry.
+    properties:
+      coordinates:
+        description: A single (X, Y) or (longitude, latitude) coordinate pair.
+        items:
+          format: double
+          type: number
+        maxItems: 2
+        minItems: 2
+        type: array
+      type:
+        enum:
+        - Point
+        type: string
+    required:
+    - type
+    - coordinates
+    type: object
+
+parameters:
+  LocationIDParam:
+    description: The ID of the bike location, set by the system.
+    in: path
+    name: location_id
+    required: true
+    type: string
+  SystemIDParam:
+    description: The ID of the bike system, set by the server.
+    in: path
+    name: system_id
+    required: true
+    type: string
+  APIAccessKey:
+    description: The API access key for the request.
+    in: header
+    name: x-access_key
+    required: true
+    type: string

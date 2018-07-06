@@ -28,6 +28,7 @@ definitions:
       system_id:
         type: string
       currency:
+        description: The ISO4217 currency code.
         type: string
       rates:
         description: list of available rates

@@ -1,0 +1,82 @@
+definitions:
+  GeoCoordinates:
+    description: The geographic coordinates of a place or event.
+    externalDocs:
+      url: "http://schema.org/GeoCoordinates"
+    properties:
+      latitude:
+        type: number
+        description: Latitude information
+      longitude:
+        type: number
+        description: Longitude information
+      address:
+        type: string
+        description: Physical address of the item.
+      # other fields that could be added:
+      #  - addressCountry
+      #  - postalcode
+      #  - elevation
+    required:
+      - latitude
+      - longitude
+  CompanyInfo:
+    externalDocs:
+      url: 'https://schema.org/provider'
+    properties:
+      name:
+        type: string
+      address:
+        type: string
+      phone:
+        type: string
+      website:
+        type: string
+      logos:
+        type: array
+        items:
+          $ref: '#/definitions/ImageObject'
+      color:
+        $ref: '#/definitions/RGBColor'
+  ImageObject:
+      description: Image stored remotely
+      externalDocs:
+        url: "http://schema.org/ImageObject"
+      properties:
+        caption:
+          type: string
+          description: The caption for this object
+        contentUrl:
+          type: string
+          description: URL to download image
+        fileFormat:
+          type: string
+          description: Media type of image
+          externalDocs:
+            url: "http://schema.org/fileFormat"
+        width:
+          type: integer
+          description: Width in pixels
+        height:
+          type: integer
+          description: Height in pixels
+      required:
+        - contentUrl
+  RGBColor:
+    properties:
+      red:
+        type: integer
+        minimum: 0
+        maximum: 255
+      blue:
+        type: integer
+        minimum: 0
+        maximum: 255
+      green:
+        type: integer
+        minimum: 0
+        maximum: 255
+    required:
+      - red
+      - blue
+      - green
