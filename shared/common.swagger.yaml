@@ -1,4 +1,54 @@
 definitions:
+
+  #GeoJSON
+
+  MultiPolygonGeometry:
+    description: A GeoJSON MultiPolygon geometry.
+    properties:
+      coordinates:
+        items:
+          items:
+            items:
+              description: A single (X, Y) or (longitude, latitude) coordinate pair.
+              items:
+                format: double
+                type: number
+              maxItems: 2
+              minItems: 2
+              type: array
+            type: array
+          type: array
+        type: array
+      type:
+        enum:
+        - MultiPolygon
+        type: string
+    required:
+    - type
+    - coordinates
+    type: object
+  PointGeometry:
+    description: A GeoJSON Point geometry.
+    properties:
+      coordinates:
+        description: A single (X, Y) or (longitude, latitude) coordinate pair.
+        items:
+          format: double
+          type: number
+        maxItems: 2
+        minItems: 2
+        type: array
+      type:
+        enum:
+        - Point
+        type: string
+    required:
+    - type
+    - coordinates
+    type: object
+
+  #Schema.org
+
   GeoCoordinates:
     description: The geographic coordinates of a place or event.
     externalDocs:
@@ -62,6 +112,9 @@ definitions:
           description: Height in pixels
       required:
         - contentUrl
+
+  #SkedGo
+
   RGBColor:
     properties:
       red:

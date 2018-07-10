@@ -80,10 +80,6 @@ paths:
       responses:
         200:
           description: Detailed information on the requested bike system.
-          headers:
-            Access-Control-Allow-Origin:
-              default: '*'
-              type: string
           schema:
             $ref: '#/definitions/BikeSystemFeature'
         403:
@@ -210,7 +206,7 @@ definitions:
     description: A bike location, as a GeoJSON Feature.
     properties:
       geometry:
-        $ref: '#/definitions/PointGeometry'
+        $ref: './shared/common.swagger.yaml#/definitions/PointGeometry'
       id:
         description: |
           The ID of the bike location, set by the server. Currently, this is not a permanent value
@@ -242,9 +238,6 @@ definitions:
         format: date-time
         type: string
         example: 2017-03-12T14:00:00-07:00
-      location:
-        description: GeoLocation of the bike
-        $ref: './shared/common.swagger.yaml#/definitions/GeoCoordinates'
       location_id:
         description: The ID of the bike location. This is a GBFS station_id or bike_id.
         type: string
@@ -276,7 +269,6 @@ definitions:
     - location_id
     - location_type
     - system_id
-    - location
     - num_bikes_available
     - last_reported
     - is_renting
@@ -311,7 +303,7 @@ definitions:
     description: Information about a bike system, as a GeoJSON Feature.
     properties:
       geometry:
-        $ref: '#/definitions/MultiPolygonGeometry'
+        $ref: './shared/common.swagger.yaml#/definitions/MultiPolygonGeometry'
       id:
         description: The ID of the bike system, set by the server.
         type: string
@@ -378,50 +370,6 @@ definitions:
         type: integer
       message:
         type: string
-    type: object
-  MultiPolygonGeometry:
-    description: A GeoJSON MultiPolygon geometry.
-    properties:
-      coordinates:
-        items:
-          items:
-            items:
-              description: A single (X, Y) or (longitude, latitude) coordinate pair.
-              items:
-                format: double
-                type: number
-              maxItems: 2
-              minItems: 2
-              type: array
-            type: array
-          type: array
-        type: array
-      type:
-        enum:
-        - MultiPolygon
-        type: string
-    required:
-    - type
-    - coordinates
-    type: object
-  PointGeometry:
-    description: A GeoJSON Point geometry.
-    properties:
-      coordinates:
-        description: A single (X, Y) or (longitude, latitude) coordinate pair.
-        items:
-          format: double
-          type: number
-        maxItems: 2
-        minItems: 2
-        type: array
-      type:
-        enum:
-        - Point
-        type: string
-    required:
-    - type
-    - coordinates
     type: object
 
 parameters:
