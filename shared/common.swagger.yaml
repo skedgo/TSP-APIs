@@ -1,0 +1,135 @@
+definitions:
+
+  #GeoJSON
+
+  MultiPolygonGeometry:
+    description: A GeoJSON MultiPolygon geometry.
+    properties:
+      coordinates:
+        items:
+          items:
+            items:
+              description: A single (X, Y) or (longitude, latitude) coordinate pair.
+              items:
+                format: double
+                type: number
+              maxItems: 2
+              minItems: 2
+              type: array
+            type: array
+          type: array
+        type: array
+      type:
+        enum:
+        - MultiPolygon
+        type: string
+    required:
+    - type
+    - coordinates
+    type: object
+  PointGeometry:
+    description: A GeoJSON Point geometry.
+    properties:
+      coordinates:
+        description: A single (X, Y) or (longitude, latitude) coordinate pair.
+        items:
+          format: double
+          type: number
+        maxItems: 2
+        minItems: 2
+        type: array
+      type:
+        enum:
+        - Point
+        type: string
+    required:
+    - type
+    - coordinates
+    type: object
+
+  #Schema.org
+
+  GeoCoordinates:
+    description: The geographic coordinates of a place or event.
+    externalDocs:
+      url: "http://schema.org/GeoCoordinates"
+    properties:
+      latitude:
+        type: number
+        description: Latitude information
+      longitude:
+        type: number
+        description: Longitude information
+      address:
+        type: string
+        description: Physical address of the item.
+      # other fields that could be added:
+      #  - addressCountry
+      #  - postalcode
+      #  - elevation
+    required:
+      - latitude
+      - longitude
+  CompanyInfo:
+    externalDocs:
+      url: 'https://schema.org/provider'
+    properties:
+      name:
+        type: string
+      address:
+        type: string
+      phone:
+        type: string
+      website:
+        type: string
+      logos:
+        type: array
+        items:
+          $ref: '#/definitions/ImageObject'
+      color:
+        $ref: '#/definitions/RGBColor'
+  ImageObject:
+      description: Image stored remotely
+      externalDocs:
+        url: "http://schema.org/ImageObject"
+      properties:
+        caption:
+          type: string
+          description: The caption for this object
+        contentUrl:
+          type: string
+          description: URL to download image
+        fileFormat:
+          type: string
+          description: Media type of image
+          externalDocs:
+            url: "http://schema.org/fileFormat"
+        width:
+          type: integer
+          description: Width in pixels
+        height:
+          type: integer
+          description: Height in pixels
+      required:
+        - contentUrl
+
+  #SkedGo
+
+  RGBColor:
+    properties:
+      red:
+        type: integer
+        minimum: 0
+        maximum: 255
+      blue:
+        type: integer
+        minimum: 0
+        maximum: 255
+      green:
+        type: integer
+        minimum: 0
+        maximum: 255
+    required:
+      - red
+      - blue
+      - green
