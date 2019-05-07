@@ -5,16 +5,16 @@ Recommended APIs that transport service providers implement, for them to be easi
 Bike-Sharing:
 
 - Static and real-time data in [GBFS](https://github.com/NABSA/gbfs)
-- [Bike Share High level model](docs/BikeShare.md) 
+- [Bike Share High level model](model/BikeShare.md) 
 
 Moto-Scooter-Sharing:
 
-- [Moto Scooter Share High level model](docs/MotoScooterShare.md)
+- [Moto Scooter Share High level model](model/MotoScooterShare.md)
 
 Car-Sharing:
 
 - [View in Swagger UI](http://petstore.swagger.io/?url=https://raw.githubusercontent.com/skedgo/TSP-APIs/master/car-share.swagger.yaml).
-- [Car Share High level model](docs/CarShare.md)
+- [Car Share High level model](model/CarShare.md)
 
 Car Parks:
 
@@ -30,7 +30,7 @@ Public Transport:
 - Real-time data in [GTFS-Realtime](https://developers.google.com/transit/gtfs-realtime/reference/) (preferred) or [SIRI](http://user47094.vs.easily.co.uk/siri/)
 
 Bookings
-- [Bookings model](docs/Bookings.md) 
+- [Bookings model](model/Bookings.md) 
 
 If you use non-standard formats, we can still integrate your service onto our platform, but please [get in touch](mailto:api@tripgo.com) for that.
 
