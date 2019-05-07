@@ -30,10 +30,7 @@ Public Transport:
 - Real-time data in [GTFS-Realtime](https://developers.google.com/transit/gtfs-realtime/reference/) (preferred) or [SIRI](http://user47094.vs.easily.co.uk/siri/)
 
 Bookings
-- [Bookings High level model](docs/Bookings.md) 
-
-Auth
-- [Auth High level model](docs/Auth.md)
+- [Bookings model](docs/Bookings.md) 
 
 If you use non-standard formats, we can still integrate your service onto our platform, but please [get in touch](mailto:api@tripgo.com) for that.
 

@@ -1,6 +1,15 @@
-#### Bookings High Level Model
+#### Bookings & Authorization Model
 
-* We have here a high level description of required booking endpoints (which will be for both Level 2 and 3):
+* Level 2 (for registered users on external TSP):
+	- OAuth for Users to get a Token (preferred), or
+	- Use User/Pass for auth in endpoints
+
+* Level 3 (for external TSP without registered users):
+	- API key auth (preferably filtered by IP), or
+	- OAuth can also used for this, but will require a single (corporate) account for which all the bookings are made
+
+A high level description of required booking endpoints (which will be for both Level 2 and 3):
+
 * quote (POST) create (depends on pricing schemes, will probably not be needed)
 * quote (GET) get (depends on pricing schemes, will probably not be needed)
 * booking/create (POST)(required)
