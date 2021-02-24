@@ -2,38 +2,53 @@
 
 Recommended APIs that transport service providers implement, for them to be easily included in the SkedGo platform and [accessible through the TripGo API](https://developer.tripgo.com).
 
-Bike-Sharing:
+## TSP connectors
+
+### Bike-Sharing and Scooter-Sharing:
 
 - Static and real-time data in [GBFS](https://github.com/NABSA/gbfs) 
+- For GBFS TSP connector, also [these shared endpoints](shared) are required.
+
 - [Bike Share High level model](model/BikeShare.md) 
-
-Moto-Scooter-Sharing:
-
 - [Moto Scooter Share High level model](model/MotoScooterShare.md)
 
-Car-Sharing:
+- (WIP) Specs based on GBFS being re-designed [View in ReDocs UI](micro-mobility).
+
+### Taxi-(like) Services:
+
+- [View in ReDocs UI](taxi).
+- [View in Swagger UI](http://petstore.swagger.io/?url=http://skedgo.github.io/TSP-APIs/taxi/taxi.json).
+
+- (Deprecated) [View in Swagger UI](http://petstore.swagger.io/?url=https://raw.githubusercontent.com/skedgo/TSP-APIs/master/taxi.swagger.yaml). 
+
+### Info:
+
+- [View in ReDocs UI](info).
+
+## Future TSP connectors
+
+These are the current specs, but may change once they are added as TSP connectors
+
+### Car-Sharing:
 
 - [View in Swagger UI](http://petstore.swagger.io/?url=https://raw.githubusercontent.com/skedgo/TSP-APIs/master/car-share.swagger.yaml).
 - [Car Share High level model](model/CarShare.md)
 
-Car Parks:
+### Car Parks:
 
 - [View in Swagger UI](http://petstore.swagger.io/?url=https://raw.githubusercontent.com/skedgo/TSP-APIs/master/car-park.swagger.yaml)
 
-Taxi-(like) Services:
+### Bookings
 
-- [View in ReDocs UI](taxi/index.html).
-- [View in Swagger UI](http://petstore.swagger.io/?url=https://raw.githubusercontent.com/skedgo/TSP-APIs/feature/tspConnectors/taxi/taxi.json).
+- [Bookings model](model/Bookings.md) 
 
-- (Deprecated) [View in Swagger UI](http://petstore.swagger.io/?url=https://raw.githubusercontent.com/skedgo/TSP-APIs/master/taxi.swagger.yaml). 
+## Other
 
-Public Transport:
+### Public Transport:
 
 - Static data in [GTFS](https://developers.google.com/transit/gtfs/reference/) (preferred), [TransXChange](http://naptan.dft.gov.uk/transxchange/) or [VDV-451/VDV-452](http://gdal.org/drv_vdv.html)
 - Real-time data in [GTFS-Realtime](https://developers.google.com/transit/gtfs-realtime/reference/) (preferred) or [SIRI](http://user47094.vs.easily.co.uk/siri/)
 
-Bookings
-- [Bookings model](model/Bookings.md) 
 
 If you use non-standard formats, we can still integrate your service onto our platform, but please [get in touch](mailto:api@tripgo.com) for that.
 
