@@ -4,7 +4,7 @@ Recommended APIs that transport service providers implement, for them to be easi
 
 Bike-Sharing:
 
-- Static and real-time data in [GBFS](https://github.com/NABSA/gbfs)
+- Static and real-time data in [GBFS](https://github.com/NABSA/gbfs) 
 - [Bike Share High level model](model/BikeShare.md) 
 
 Moto-Scooter-Sharing:
@@ -22,7 +22,10 @@ Car Parks:
 
 Taxi-(like) Services:
 
-- [View in Swagger UI](http://petstore.swagger.io/?url=https://raw.githubusercontent.com/skedgo/TSP-APIs/master/taxi.swagger.yaml).
+- [View in ReDocs UI](taxi/index.html).
+- [View in Swagger UI](http://petstore.swagger.io/?url=https://raw.githubusercontent.com/skedgo/TSP-APIs/feature/tspConnectors/taxi/taxi.json).
+
+- (Deprecated) [View in Swagger UI](http://petstore.swagger.io/?url=https://raw.githubusercontent.com/skedgo/TSP-APIs/master/taxi.swagger.yaml). 
 
 Public Transport:
 
