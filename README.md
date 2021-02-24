@@ -7,7 +7,7 @@ Recommended APIs that transport service providers implement, for them to be easi
 ### Bike-Sharing and Scooter-Sharing:
 
 - Static and real-time data in [GBFS](https://github.com/NABSA/gbfs) 
-- For GBFS TSP connector, also [these shared endpoints](shared) are required.
+- For GBFS TSP connector, also [provider](shared/#operation/provider) and [coverage](shared/#operation/coverage) endpoints are required.
 
 - [Bike Share High level model](model/BikeShare.md) 
 - [Moto Scooter Share High level model](model/MotoScooterShare.md)
@@ -17,7 +17,6 @@ Recommended APIs that transport service providers implement, for them to be easi
 ### Taxi-(like) Services:
 
 - [View in ReDocs UI](taxi).
-- [View in Swagger UI](http://petstore.swagger.io/?url=http://skedgo.github.io/TSP-APIs/taxi/taxi.json).
 
 - (Deprecated) [View in Swagger UI](http://petstore.swagger.io/?url=https://raw.githubusercontent.com/skedgo/TSP-APIs/master/taxi.swagger.yaml). 
 
