@@ -12,13 +12,9 @@ Recommended APIs that transport service providers implement, for them to be easi
 - [Bike Share High level model](model/BikeShare.md) 
 - [Moto Scooter Share High level model](model/MotoScooterShare.md)
 
-- (WIP) Specs based on GBFS being re-designed [View in ReDocs UI](micro-mobility).
-
 ### Taxi-(like) Services:
 
 - [View in ReDocs UI](taxi).
-
-- (Deprecated) [View in Swagger UI](http://petstore.swagger.io/?url=https://raw.githubusercontent.com/skedgo/TSP-APIs/master/taxi.swagger.yaml). 
 
 ### Info:
 
@@ -36,10 +32,6 @@ These are the current specs, but may change once they are added as TSP connector
 ### Car Parks:
 
 - [View in Swagger UI](http://petstore.swagger.io/?url=https://raw.githubusercontent.com/skedgo/TSP-APIs/master/car-park.swagger.yaml)
-
-### Bookings
-
-- [Bookings model](model/Bookings.md) 
 
 ## Other
 
