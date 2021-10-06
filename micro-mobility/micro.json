@@ -157,177 +157,6 @@
         }
       }
     },
-    "/{coverageID}/booking/events/cancel" : {
-      "post" : {
-        "tags" : [ "Micro-mobility" ],
-        "summary" : "cancel booking",
-        "description" : "cancel booking",
-        "operationId" : "cancel",
-        "parameters" : [ {
-          "name" : "coverageID",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/BookingOperationInput"
-              }
-            }
-          }
-        },
-        "responses" : {
-          "200" : {
-            "description" : "Booking information",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BookingOutput"
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "This method requires an `x-access_key` and it is either missing or invalid, or the the credentials provided are not sufficient for access to the specified resource.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "error"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Unexpected error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/{coverageID}/booking/events/done" : {
-      "post" : {
-        "tags" : [ "Micro-mobility" ],
-        "summary" : "lock selected bike to finish riding",
-        "description" : "lock bike to finish riding",
-        "operationId" : "lock",
-        "parameters" : [ {
-          "name" : "coverageID",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/FinishInput"
-              }
-            }
-          }
-        },
-        "responses" : {
-          "200" : {
-            "description" : "Booking information",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BookingOutput"
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "This method requires an `x-access_key` and it is either missing or invalid, or the the credentials provided are not sufficient for access to the specified resource.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "error"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Unexpected error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/{coverageID}/booking/events/confirm" : {
-      "post" : {
-        "tags" : [ "Micro-mobility" ],
-        "summary" : "Unlock selected bike to start riding",
-        "description" : "Receives qr code information to unlock selected bike",
-        "operationId" : "unlock",
-        "parameters" : [ {
-          "name" : "coverageID",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/CommitInput"
-              }
-            }
-          }
-        },
-        "responses" : {
-          "200" : {
-            "description" : "Booking information",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/BookingOutput"
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "This method requires an `x-access_key` and it is either missing or invalid, or the the credentials provided are not sufficient for access to the specified resource.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "error"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Unexpected error",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/coverage" : {
       "get" : {
         "tags" : [ "Shared" ],
@@ -517,44 +346,6 @@
           }
         }
       },
-      "Customer" : {
-        "required" : [ "email", "first-name", "id", "last-name", "phone" ],
-        "type" : "object",
-        "properties" : {
-          "id" : {
-            "type" : "string",
-            "description" : "customer id"
-          },
-          "first-name" : {
-            "type" : "string",
-            "description" : "customer first name"
-          },
-          "last-name" : {
-            "type" : "string",
-            "description" : "customer last name"
-          },
-          "phone" : {
-            "type" : "string",
-            "description" : "customer phone"
-          },
-          "email" : {
-            "type" : "string",
-            "description" : "customer email"
-          }
-        },
-        "description" : "customer information"
-      },
-      "BookingOperationInput" : {
-        "required" : [ "operation" ],
-        "type" : "object",
-        "properties" : {
-          "operation" : {
-            "type" : "string",
-            "description" : "booking operation",
-            "enum" : [ "COMMIT", "CANCEL", "DONE" ]
-          }
-        }
-      },
       "PricingRules" : {
         "required" : [ "fare" ],
         "type" : "object",
@@ -629,24 +420,6 @@
           }
         },
         "description" : "List of products available"
-      },
-      "BookingOutput" : {
-        "required" : [ "id", "state" ],
-        "type" : "object",
-        "properties" : {
-          "id" : {
-            "type" : "string",
-            "description" : "product id"
-          },
-          "customer" : {
-            "$ref" : "#/components/schemas/Customer"
-          },
-          "state" : {
-            "type" : "string",
-            "description" : "Booking status",
-            "enum" : [ "COMMIT", "CANCEL", "DONE" ]
-          }
-        }
       },
       "StationStatusFeature" : {
         "required" : [ "id", "type" ],
@@ -733,7 +506,7 @@
           "name" : {
             "type" : "string",
             "description" : "Key identifying the type of endpoint this is",
-            "enum" : [ "provider", "coverage", "estimatePrice", "estimateTime", "stationInformation", "stationStatus", "freeBikeStatus", "confirmBook", "doneBook", "cancelBook" ]
+            "enum" : [ "provider", "coverage", "estimatePrice", "estimateTime", "stationInformation", "stationStatus", "freeBikeStatus", "info", "bikeLanes", "createBooking", "updateBookingStatus", "getBooking" ]
           },
           "url" : {
             "type" : "string",
@@ -810,25 +583,6 @@
           }
         }
       },
-      "FinishInput" : {
-        "required" : [ "bookedId", "locationId", "operation" ],
-        "type" : "object",
-        "properties" : {
-          "operation" : {
-            "type" : "string",
-            "description" : "booking operation",
-            "enum" : [ "COMMIT", "CANCEL", "DONE" ]
-          },
-          "locationId" : {
-            "type" : "string",
-            "description" : "location id where booking finish"
-          },
-          "bookedId" : {
-            "type" : "string",
-            "description" : "booking id to finish"
-          }
-        }
-      },
       "EndpointsConfig" : {
         "required" : [ "endpoints" ],
         "type" : "object",
@@ -891,11 +645,11 @@
           },
           "contentUrl" : {
             "type" : "string",
-            "description" : "URL to download image"
+            "description" : "URL to download image, or image code for SkedGo icons"
           },
           "fileFormat" : {
             "type" : "string",
-            "description" : "Media type of image"
+            "description" : "Media type of image, including remoteIcon and remoteDarkIcon for SkedGo"
           },
           "width" : {
             "type" : "integer",
@@ -1055,10 +809,12 @@
           },
           "bookingFee" : {
             "type" : "number",
+            "description" : "Fee for booking in advance",
             "format" : "float"
           },
           "waitingMaxSpeed" : {
             "type" : "integer",
+            "description" : "Wait time charged while the vehicle is stopped or slowed to less than X KM per hour",
             "format" : "int32"
           },
           "parts" : {
@@ -1085,7 +841,11 @@
           },
           "deepLinkPattern" : {
             "type" : "string",
-            "description" : "deep link pattern, including the following placeholders between <>: fromLat, fromLng, fromAddress, toLat, toLng, toAddress, productId"
+            "description" : "Will be used when booking is available, if we need need to add any of the enabled params.Deep link pattern, including the following placeholders between <>: fromLat, fromLng, fromAddress, toLat, toLng, toAddress, productId"
+          },
+          "deepLink" : {
+            "type" : "string",
+            "description" : "Will be user to open the app, any time, and also for bookings if deepLinkPattern is not present"
           }
         }
       },
@@ -1105,8 +865,38 @@
               "enum" : [ "pt_pub, ps_tax, ps_tnc, ps_shu, cy_bic-s, me_car-s, me_car-r, me_car-p" ]
             },
             "enum" : [ "pt_pub, ps_tax, ps_tnc, ps_shu, cy_bic-s, me_car-s, me_car-r, me_car-p" ]
+          },
+          "preferGenericMode" : {
+            "type" : "boolean",
+            "description" : "Whether is preferred to use the generic mode over the specific one",
+            "default" : false
+          },
+          "defaultVehicleType" : {
+            "$ref" : "#/components/schemas/ShareVehicleType"
+          },
+          "combined" : {
+            "type" : "boolean",
+            "description" : "Whether this provider is a combination of two (for Feonix)",
+            "default" : false
           }
         }
+      },
+      "ShareVehicleType" : {
+        "required" : [ "formFactor", "propulsionType" ],
+        "type" : "object",
+        "properties" : {
+          "formFactor" : {
+            "type" : "string",
+            "description" : "The vehicle's general form factor following GBFS 2.1 standard",
+            "enum" : [ "BICYCLE,CAR,MOPED,SCOOTER,OTHER" ]
+          },
+          "propulsionType" : {
+            "type" : "string",
+            "description" : "The primary propulsion type of the vehicle following GBFS 2.1 standard",
+            "enum" : [ "HUMAN,ELECTRIC_ASSIST,ELECTRIC,COMBUSTION" ]
+          }
+        },
+        "description" : "Default vehicle type, as fallback for the cases where there is no specific information available"
       },
       "MultiPolygon" : {
         "required" : [ "type" ],
@@ -1152,32 +942,10 @@
           }
         }
       },
-      "CommitInput" : {
-        "required" : [ "operation", "qrCode", "userId" ],
-        "type" : "object",
-        "properties" : {
-          "operation" : {
-            "type" : "string",
-            "description" : "booking operation",
-            "enum" : [ "COMMIT", "CANCEL", "DONE" ]
-          },
-          "userId" : {
-            "type" : "string",
-            "description" : "user id"
-          },
-          "qrCode" : {
-            "type" : "string",
-            "description" : "qr Code to start riding"
-          }
-        }
-      },
       "CompanyInfo" : {
         "required" : [ "name" ],
         "type" : "object",
         "properties" : {
-          "appInfo" : {
-            "$ref" : "#/components/schemas/AppInfo"
-          },
           "name" : {
             "type" : "string"
           },
@@ -1198,6 +966,9 @@
           },
           "color" : {
             "$ref" : "#/components/schemas/RGBColor"
+          },
+          "appInfo" : {
+            "$ref" : "#/components/schemas/AppInfo"
           }
         }
       }
