@@ -13,43 +13,6 @@
     }
   },
   "paths" : {
-    "/provider" : {
-      "get" : {
-        "tags" : [ "Shared" ],
-        "summary" : "Information of the provider",
-        "description" : "Information about the provider, including company info and enabled endpoints",
-        "operationId" : "provider",
-        "parameters" : [ {
-          "name" : "x-access_key",
-          "in" : "header",
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Detailed information on provider",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Provider"
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "This method requires an `x-access_key` and it is either missing or invalid, or the the credentials provided are not sufficient for access to the specified resource.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/coverage" : {
       "get" : {
         "tags" : [ "Shared" ],
@@ -70,6 +33,43 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/Coverage"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "This method requires an `x-access_key` and it is either missing or invalid, or the the credentials provided are not sufficient for access to the specified resource.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/provider" : {
+      "get" : {
+        "tags" : [ "Shared" ],
+        "summary" : "Information of the provider",
+        "description" : "Information about the provider, including company info and enabled endpoints",
+        "operationId" : "provider",
+        "parameters" : [ {
+          "name" : "x-access_key",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Detailed information on provider",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Provider"
                 }
               }
             }
@@ -162,6 +162,19 @@
           }
         }
       },
+      "EndpointsConfig" : {
+        "required" : [ "endpoints" ],
+        "type" : "object",
+        "properties" : {
+          "endpoints" : {
+            "type" : "array",
+            "description" : "List of endpoints available",
+            "items" : {
+              "$ref" : "#/components/schemas/Endpoint"
+            }
+          }
+        }
+      },
       "CoverageProperties" : {
         "type" : "object",
         "properties" : {
@@ -181,32 +194,34 @@
           }
         }
       },
-      "Customer" : {
-        "required" : [ "email", "first-name", "id", "last-name", "phone" ],
+      "ImageObject" : {
+        "required" : [ "contentUrl" ],
         "type" : "object",
         "properties" : {
-          "id" : {
+          "caption" : {
             "type" : "string",
-            "description" : "customer id"
+            "description" : "The caption for this object"
           },
-          "first-name" : {
+          "contentUrl" : {
             "type" : "string",
-            "description" : "customer first name"
+            "description" : "URL to download image, or image code for SkedGo icons"
           },
-          "last-name" : {
+          "fileFormat" : {
             "type" : "string",
-            "description" : "customer last name"
+            "description" : "Media type of image, including remoteIcon and remoteDarkIcon for SkedGo"
           },
-          "phone" : {
-            "type" : "string",
-            "description" : "customer phone"
+          "width" : {
+            "type" : "integer",
+            "description" : "Width in pixels",
+            "format" : "int32"
           },
-          "email" : {
-            "type" : "string",
-            "description" : "customer email"
+          "height" : {
+            "type" : "integer",
+            "description" : "Height in pixels",
+            "format" : "int32"
           }
         },
-        "description" : "customer information"
+        "description" : "Image stored remotely"
       },
       "PricingRules" : {
         "required" : [ "fare" ],
@@ -282,64 +297,6 @@
           }
         },
         "description" : "List of products available"
-      },
-      "Endpoint" : {
-        "required" : [ "name", "url" ],
-        "type" : "object",
-        "properties" : {
-          "name" : {
-            "type" : "string",
-            "description" : "Key identifying the type of endpoint this is",
-            "enum" : [ "provider", "coverage", "estimatePrice", "estimateTime", "stationInformation", "stationStatus", "freeBikeStatus", "confirmBook", "doneBook", "cancelBook" ]
-          },
-          "url" : {
-            "type" : "string",
-            "description" : "URL for the endpoint, it can be absolute or relative"
-          }
-        },
-        "description" : "List of endpoints available"
-      },
-      "EndpointsConfig" : {
-        "required" : [ "endpoints" ],
-        "type" : "object",
-        "properties" : {
-          "endpoints" : {
-            "type" : "array",
-            "description" : "List of endpoints available",
-            "items" : {
-              "$ref" : "#/components/schemas/Endpoint"
-            }
-          }
-        }
-      },
-      "ImageObject" : {
-        "required" : [ "contentUrl" ],
-        "type" : "object",
-        "properties" : {
-          "caption" : {
-            "type" : "string",
-            "description" : "The caption for this object"
-          },
-          "contentUrl" : {
-            "type" : "string",
-            "description" : "URL to download image"
-          },
-          "fileFormat" : {
-            "type" : "string",
-            "description" : "Media type of image"
-          },
-          "width" : {
-            "type" : "integer",
-            "description" : "Width in pixels",
-            "format" : "int32"
-          },
-          "height" : {
-            "type" : "integer",
-            "description" : "Height in pixels",
-            "format" : "int32"
-          }
-        },
-        "description" : "Image stored remotely"
       },
       "Coverage" : {
         "required" : [ "features", "type" ],
@@ -417,6 +374,35 @@
         },
         "description" : "this describes a part of the fare (or discount).It contains a for instance the startup costs (fixed) or the flex part (e.g. 1.25 EUR per 2.0 MILES).The amount is tax included. In case of discounts, the values are negative.With 'MAX' you can specify e.g. a maximum of 15 euro per day. Percentage is mainly added for discounts.The `scale` properties create the ability to communicate scales(e.g. the first 4 kilometers you've to pay EUR 0.35 per kilometer, the kilometers 4 until 8 EUR 0.50 and above it EUR 0.80 per kilometer)."
       },
+      "Fare" : {
+        "type" : "object",
+        "properties" : {
+          "estimated" : {
+            "type" : "boolean"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "bookingFee" : {
+            "type" : "number",
+            "description" : "Fee for booking in advance",
+            "format" : "float"
+          },
+          "waitingMaxSpeed" : {
+            "type" : "integer",
+            "description" : "Wait time charged while the vehicle is stopped or slowed to less than X KM per hour",
+            "format" : "int32"
+          },
+          "parts" : {
+            "type" : "array",
+            "description" : "this describes a part of the fare (or discount).It contains a for instance the startup costs (fixed) or the flex part (e.g. 1.25 EUR per 2.0 MILES).The amount is tax included. In case of discounts, the values are negative.With 'MAX' you can specify e.g. a maximum of 15 euro per day. Percentage is mainly added for discounts.The `scale` properties create the ability to communicate scales(e.g. the first 4 kilometers you've to pay EUR 0.35 per kilometer, the kilometers 4 until 8 EUR 0.50 and above it EUR 0.80 per kilometer).",
+            "items" : {
+              "$ref" : "#/components/schemas/FarePart"
+            }
+          }
+        },
+        "description" : "the total fare is the sum of all parts, except for the 'MAX' farePart. This one describes the maximum price for the complete leg.\nestimated: is this fare an estimation?"
+      },
       "AppInfo" : {
         "type" : "object",
         "properties" : {
@@ -431,7 +417,11 @@
           },
           "deepLinkPattern" : {
             "type" : "string",
-            "description" : "deep link pattern, including the following placeholders between <>: fromLat, fromLng, fromAddress, toLat, toLng, toAddress, productId"
+            "description" : "Will be used when booking is available, if we need need to add any of the enabled params.Deep link pattern, including the following placeholders between <>: fromLat, fromLng, fromAddress, toLat, toLng, toAddress, productId"
+          },
+          "deepLink" : {
+            "type" : "string",
+            "description" : "Will be user to open the app, any time, and also for bookings if deepLinkPattern is not present"
           }
         }
       },
@@ -451,35 +441,54 @@
               "enum" : [ "pt_pub, ps_tax, ps_tnc, ps_shu, cy_bic-s, me_car-s, me_car-r, me_car-p" ]
             },
             "enum" : [ "pt_pub, ps_tax, ps_tnc, ps_shu, cy_bic-s, me_car-s, me_car-r, me_car-p" ]
+          },
+          "preferGenericMode" : {
+            "type" : "boolean",
+            "description" : "Whether is preferred to use the generic mode over the specific one",
+            "default" : false
+          },
+          "defaultVehicleType" : {
+            "$ref" : "#/components/schemas/ShareVehicleType"
+          },
+          "combined" : {
+            "type" : "boolean",
+            "description" : "Whether this provider is a combination of two (for Feonix)",
+            "default" : false
           }
         }
       },
-      "Fare" : {
+      "ShareVehicleType" : {
+        "required" : [ "formFactor", "propulsionType" ],
         "type" : "object",
         "properties" : {
-          "estimated" : {
-            "type" : "boolean"
+          "formFactor" : {
+            "type" : "string",
+            "description" : "The vehicle's general form factor following GBFS 2.1 standard",
+            "enum" : [ "BICYCLE,CAR,MOPED,SCOOTER,OTHER" ]
           },
-          "description" : {
-            "type" : "string"
-          },
-          "bookingFee" : {
-            "type" : "number",
-            "format" : "float"
-          },
-          "waitingMaxSpeed" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "parts" : {
-            "type" : "array",
-            "description" : "this describes a part of the fare (or discount).It contains a for instance the startup costs (fixed) or the flex part (e.g. 1.25 EUR per 2.0 MILES).The amount is tax included. In case of discounts, the values are negative.With 'MAX' you can specify e.g. a maximum of 15 euro per day. Percentage is mainly added for discounts.The `scale` properties create the ability to communicate scales(e.g. the first 4 kilometers you've to pay EUR 0.35 per kilometer, the kilometers 4 until 8 EUR 0.50 and above it EUR 0.80 per kilometer).",
-            "items" : {
-              "$ref" : "#/components/schemas/FarePart"
-            }
+          "propulsionType" : {
+            "type" : "string",
+            "description" : "The primary propulsion type of the vehicle following GBFS 2.1 standard",
+            "enum" : [ "HUMAN,ELECTRIC_ASSIST,ELECTRIC,COMBUSTION" ]
           }
         },
-        "description" : "the total fare is the sum of all parts, except for the 'MAX' farePart. This one describes the maximum price for the complete leg.\nestimated: is this fare an estimation?"
+        "description" : "Default vehicle type, as fallback for the cases where there is no specific information available"
+      },
+      "Endpoint" : {
+        "required" : [ "name", "url" ],
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "description" : "Key identifying the type of endpoint this is",
+            "enum" : [ "provider", "coverage", "estimatePrice", "estimateTime", "stationInformation", "stationStatus", "freeBikeStatus", "info", "bikeLanes", "createBooking", "updateBookingStatus", "getBooking" ]
+          },
+          "url" : {
+            "type" : "string",
+            "description" : "URL for the endpoint, it can be absolute or relative"
+          }
+        },
+        "description" : "List of endpoints available"
       },
       "MultiPolygon" : {
         "required" : [ "type" ],
@@ -513,9 +522,6 @@
         "required" : [ "name" ],
         "type" : "object",
         "properties" : {
-          "appInfo" : {
-            "$ref" : "#/components/schemas/AppInfo"
-          },
           "name" : {
             "type" : "string"
           },
@@ -536,9 +542,12 @@
           },
           "color" : {
             "$ref" : "#/components/schemas/RGBColor"
+          },
+          "appInfo" : {
+            "$ref" : "#/components/schemas/AppInfo"
           }
         }
-      },
+      }
     }
   }
 }
