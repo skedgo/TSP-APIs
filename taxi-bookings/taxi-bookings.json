@@ -1,0 +1,446 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "Taxi API",
+    "description" : "Alpha version of the TSP connector for taxis used to connect to SkedGo's platform.\nReturns information in GeoJSON",
+    "license" : {
+      "name" : "Apache 2.0 License",
+      "url" : "https://www.apache.org/licenses/LICENSE-2.0"
+    },
+    "version" : "1.0.0",
+    "x-logo" : {
+      "url" : "https://developer.tripgo.com/img/tripgo-api-logo-color.svg"
+    }
+  },
+  "paths" : {
+    "/bookings/{bookingID}" : {
+      "get" : {
+        "tags" : [ "Booking-TO" ],
+        "summary" : "Get Booking",
+        "description" : "Get Booking with its current status",
+        "operationId" : "book",
+        "parameters" : [ {
+          "name" : "x-access_key",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "bookingID",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Booking response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Booking"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "This method requires an `x-access_key` and it is either missing or invalid, or the the credentials provided are not sufficient for access to the specified resource.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bookings" : {
+      "post" : {
+        "tags" : [ "Booking-TO" ],
+        "summary" : "create booking request",
+        "description" : "Initiates the booking",
+        "operationId" : "createBooking",
+        "parameters" : [ {
+          "name" : "x-access_key",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/BookingRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Booking response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BookingOutput"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "This method requires an `x-access_key` and it is either missing or invalid, or the the credentials provided are not sufficient for access to the specified resource.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bookings/{bookingID}/events" : {
+      "post" : {
+        "tags" : [ "Booking-MP", "Booking-TO" ],
+        "summary" : "Update booking status",
+        "description" : "Updates a booking status, either by confirming or cancelling it",
+        "operationId" : "updateBookingStatus_1",
+        "parameters" : [ {
+          "name" : "x-access_key",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "bookingID",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/BookingOperationInput"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Booking response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BookingOutput"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "This method requires an `x-access_key` and it is either missing or invalid, or the the credentials provided are not sufficient for access to the specified resource.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/legs/{legID}/events" : {
+      "post" : {
+        "tags" : [ "Booking-MP" ],
+        "summary" : "Update leg status",
+        "description" : "Updates a leg status",
+        "operationId" : "updateLegStatus",
+        "parameters" : [ {
+          "name" : "x-access_key",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "legID",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/LegOperationInput"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Leg response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LegOutput"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "This method requires an `x-access_key` and it is either missing or invalid, or the the credentials provided are not sufficient for access to the specified resource.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "LegOutput" : {
+        "required" : [ "id", "state" ],
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "A unique identifier for the TO to know this leg by"
+          },
+          "state" : {
+            "type" : "string",
+            "description" : "Leg status",
+            "enum" : [ "NOT_STARTED", "PREPARING", "IN_USE", "FINISHED", "ISSUE_REPORTED", "CANCELLED" ]
+          }
+        }
+      },
+      "AssetType" : {
+        "type" : "object",
+        "properties" : {
+          "assetClass" : {
+            "type" : "string",
+            "description" : "These classes are taken from the NeTeX standard, but ALL and UNKNOWN are removed. On the other hand OTHER and PARKING are added.",
+            "enum" : [ "AIR", "BUS", "TROLLEYBUS", "TRAM", "COACH", "RAIL", "INTERCITYRAIL", "URBANRAIL", "METRO", "WATER", "CABLEWAY", "FUNICULAR", "TAXI", "SELFDRIVE", "FOOT", "BICYCLE", "MOTORCYCLE", "CAR", "SHUTTLE", "OTHER", "PARKING", "MOPED", "STEP" ]
+          },
+          "assetSubClass" : {
+            "type" : "string",
+            "description" : "a more precise classification of the asset, like 'cargo bike', 'public bus', 'coach bus', 'office bus', 'water taxi', 'segway'. This is mandatory when using 'OTHER' as class."
+          },
+          "sharedProperties" : {
+            "$ref" : "#/components/schemas/SharedProperties"
+          }
+        },
+        "description" : "The asset type used in this leg as determined during booking"
+      },
+      "SharedProperties" : {
+        "type" : "object",
+        "properties" : {
+          "model" : {
+            "type" : "string",
+            "description" : "model of the asset"
+          },
+          "brand" : {
+            "type" : "string",
+            "description" : "brand of the asset"
+          },
+          "colour" : {
+            "type" : "string",
+            "description" : "colour of the asset"
+          }
+        },
+        "description" : "what kind of asset is this? Classify it, give the aspects. Most aspects are optional and should be used when applicable."
+      },
+      "BookingRequest" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "A unique identifier for the TO to know this booking by"
+          },
+          "from" : {
+            "$ref" : "#/components/schemas/Location"
+          },
+          "to" : {
+            "$ref" : "#/components/schemas/Location"
+          },
+          "customer" : {
+            "$ref" : "#/components/schemas/Customer"
+          },
+          "pickupTime" : {
+            "type" : "string",
+            "description" : "ISO-8601 formatted date. Pick up time"
+          },
+          "note" : {
+            "type" : "string",
+            "description" : "Booking note"
+          },
+          "callbackUrl" : {
+            "type" : "string",
+            "description" : "base callback/webhook url to send updates to (see /bookings/{bookingID}/events and /legs/{legID}/events)"
+          }
+        }
+      },
+      "Customer" : {
+        "required" : [ "email", "firstName", "id", "lastName", "phone" ],
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "The identifier MaaS uses to identify the customer"
+          },
+          "firstName" : {
+            "type" : "string",
+            "description" : "customer first name"
+          },
+          "lastName" : {
+            "type" : "string",
+            "description" : "customer last name"
+          },
+          "phone" : {
+            "type" : "string",
+            "description" : "customer phone"
+          },
+          "email" : {
+            "type" : "string",
+            "description" : "customer email"
+          }
+        },
+        "description" : "The user that wants to make this booking"
+      },
+      "BookingOperationInput" : {
+        "required" : [ "operation" ],
+        "type" : "object",
+        "properties" : {
+          "operation" : {
+            "type" : "string",
+            "description" : "booking operation",
+            "enum" : [ "CANCEL", "EXPIRE", "DENY", "COMMIT" ]
+          }
+        }
+      },
+      "LegOperationInput" : {
+        "required" : [ "event" ],
+        "type" : "object",
+        "properties" : {
+          "operation" : {
+            "type" : "string",
+            "writeOnly" : true,
+            "enum" : [ "PREPARE", "SET_IN_USE", "PAUSE", "FINISH", "TIME_POSTPONE" ]
+          },
+          "event" : {
+            "type" : "string",
+            "description" : "event operation",
+            "enum" : [ "PREPARE", "SET_IN_USE", "PAUSE", "FINISH", "TIME_POSTPONE" ]
+          },
+          "time" : {
+            "type" : "string",
+            "description" : "ISO-8601 formatted date. New pick up time"
+          }
+        }
+      },
+      "Booking" : {
+        "required" : [ "id", "state" ],
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "A unique identifier for the TO to know this booking by"
+          },
+          "state" : {
+            "type" : "string",
+            "description" : "Booking status",
+            "enum" : [ "NEW", "PENDING", "REJECTED", "CONDITIONAL_CONFIRMED", "CONFIRMED", "CANCELLED", "STARTED", "FINISHED" ]
+          },
+          "from" : {
+            "$ref" : "#/components/schemas/Location"
+          },
+          "to" : {
+            "$ref" : "#/components/schemas/Location"
+          },
+          "customer" : {
+            "$ref" : "#/components/schemas/Customer"
+          },
+          "legs" : {
+            "type" : "array",
+            "description" : "The legs of this booking, generally just one for simple legs, in order of how they will be travelled",
+            "items" : {
+              "$ref" : "#/components/schemas/Leg"
+            }
+          },
+          "extraData" : {
+            "$ref" : "#/components/schemas/ExtraData"
+          }
+        }
+      },
+      "ExtraData" : {
+        "type" : "object",
+        "properties" : {
+          "driverFirstName" : {
+            "type" : "string",
+            "description" : "Driver first name"
+          }
+        },
+        "description" : "Arbitrary information that a TO can add"
+      },
+      "BookingOutput" : {
+        "required" : [ "id", "state" ],
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "A unique identifier for the TO to know this booking by"
+          },
+          "state" : {
+            "type" : "string",
+            "description" : "Booking status",
+            "enum" : [ "NEW", "PENDING", "REJECTED", "CONDITIONAL_CONFIRMED", "CONFIRMED", "CANCELLED", "STARTED", "FINISHED" ]
+          }
+        }
+      },
+      "Leg" : {
+        "type" : "object",
+        "properties" : {
+          "assetType" : {
+            "$ref" : "#/components/schemas/AssetType"
+          }
+        },
+        "description" : "The legs of this booking, generally just one for simple legs, in order of how they will be travelled"
+      },
+      "Location" : {
+        "required" : [ "latitude", "longitude" ],
+        "type" : "object",
+        "properties" : {
+          "latitude" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "longitude" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "address" : {
+            "type" : "string"
+          },
+          "earthRadius" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        },
+        "description" : "information about the destination"
+      }
+    }
+  }
+}
