@@ -303,6 +303,12 @@
           },
           "deeplink" : {
             "type" : "string"
+          },
+          "bookingRules" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/BookingRule"
+            }
           }
         },
         "description" : "Options to book this particular product"
@@ -343,6 +349,9 @@
             "items" : {
               "$ref" : "#/components/schemas/PricingRules"
             }
+          },
+          "stops" : {
+            "$ref" : "#/components/schemas/DRTStops"
           }
         }
       },
@@ -519,6 +528,25 @@
         "type" : "object",
         "description" : "A JSON object that contains rental URIs for Android, iOS, and web in the android, ios, and web fields."
       },
+      "BookingRule" : {
+        "type" : "object",
+        "properties" : {
+          "weekdays" : {
+            "type" : "string",
+            "description" : "weekdays following cron-like format. valid values are 'MON-TUE', 'WED', 'MON-SUN"
+          },
+          "prebooking" : {
+            "$ref" : "#/components/schemas/PreBookingRule"
+          },
+          "workingHours" : {
+            "type" : "array",
+            "description" : "working hours, currently only supports hour scale type",
+            "items" : {
+              "$ref" : "#/components/schemas/Scale"
+            }
+          }
+        }
+      },
       "StationStatus" : {
         "required" : [ "is_renting", "last_reported", "num_bikes_available", "station_id" ],
         "type" : "object",
@@ -663,6 +691,40 @@
           }
         },
         "description" : "Image stored remotely"
+      },
+      "DRTStops" : {
+        "required" : [ "features", "type" ],
+        "type" : "object",
+        "properties" : {
+          "features" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DRTStop"
+            }
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "FeatureCollection" ]
+          }
+        },
+        "description" : "List of DRT stops, if available"
+      },
+      "DRTStopProperties" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "id of the stop"
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "name of the stop"
+          },
+          "area_id" : {
+            "type" : "string",
+            "description" : "area id"
+          }
+        }
       },
       "StationInformation" : {
         "required" : [ "features", "type" ],
@@ -898,6 +960,26 @@
         },
         "description" : "Default vehicle type, as fallback for the cases where there is no specific information available"
       },
+      "DRTStop" : {
+        "required" : [ "geometry", "id", "properties", "type" ],
+        "type" : "object",
+        "properties" : {
+          "geometry" : {
+            "$ref" : "#/components/schemas/Point"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "properties" : {
+            "$ref" : "#/components/schemas/DRTStopProperties"
+          },
+          "type" : {
+            "type" : "string",
+            "description" : "the feature type",
+            "enum" : [ "Feature" ]
+          }
+        }
+      },
       "MultiPolygon" : {
         "required" : [ "type" ],
         "type" : "object",
@@ -971,6 +1053,31 @@
             "$ref" : "#/components/schemas/AppInfo"
           }
         }
+      },
+      "PreBookingRule" : {
+        "type" : "object",
+        "properties" : {
+          "minHoursBefore" : {
+            "type" : "integer",
+            "description" : "minimum hours before booking time",
+            "format" : "int32"
+          },
+          "minWeekdayBefore" : {
+            "type" : "string",
+            "description" : "minimum week day before booking time, goes along minTimeDayBefore"
+          },
+          "minTimeDayBefore" : {
+            "type" : "integer",
+            "description" : "minimum hour of the day before booking time, goes along with minWeekdayBefore",
+            "format" : "int32"
+          },
+          "maxDaysBefore" : {
+            "type" : "integer",
+            "description" : "maximum days of pre booking",
+            "format" : "int32"
+          }
+        },
+        "description" : "pre booking rule"
       }
     }
   }
