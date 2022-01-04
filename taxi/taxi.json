@@ -112,6 +112,50 @@
         }
       }
     },
+    "/bookings/{bookingID}" : {
+      "get" : {
+        "tags" : [ "Booking-TO" ],
+        "summary" : "Get Booking",
+        "description" : "Get Booking with its current status",
+        "operationId" : "book",
+        "parameters" : [ {
+          "name" : "x-access_key",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "bookingID",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Booking response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Booking"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "This method requires an `x-access_key` and it is either missing or invalid, or the the credentials provided are not sufficient for access to the specified resource.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/estimate/price" : {
       "post" : {
         "tags" : [ "Estimates" ],
@@ -303,50 +347,6 @@
         }
       }
     },
-    "/bookings/{bookingID}" : {
-      "get" : {
-        "tags" : [ "Booking-TO" ],
-        "summary" : "Get Booking",
-        "description" : "Get Booking with its current status",
-        "operationId" : "book",
-        "parameters" : [ {
-          "name" : "x-access_key",
-          "in" : "header",
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "bookingID",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Booking response",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Booking"
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "This method requires an `x-access_key` and it is either missing or invalid, or the the credentials provided are not sufficient for access to the specified resource.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/coverage" : {
       "get" : {
         "tags" : [ "Shared" ],
@@ -384,43 +384,6 @@
         }
       }
     },
-    "/provider" : {
-      "get" : {
-        "tags" : [ "Shared" ],
-        "summary" : "Information of the provider",
-        "description" : "Information about the provider, including company info and enabled endpoints",
-        "operationId" : "provider",
-        "parameters" : [ {
-          "name" : "x-access_key",
-          "in" : "header",
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Detailed information on provider",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Provider"
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "This method requires an `x-access_key` and it is either missing or invalid, or the the credentials provided are not sufficient for access to the specified resource.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/config" : {
       "get" : {
         "tags" : [ "Shared" ],
@@ -441,6 +404,43 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/EndpointsConfig"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "This method requires an `x-access_key` and it is either missing or invalid, or the the credentials provided are not sufficient for access to the specified resource.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/provider" : {
+      "get" : {
+        "tags" : [ "Shared" ],
+        "summary" : "Information of the provider",
+        "description" : "Information about the provider, including company info and enabled endpoints",
+        "operationId" : "provider",
+        "parameters" : [ {
+          "name" : "x-access_key",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Detailed information on provider",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Provider"
                 }
               }
             }
@@ -525,6 +525,12 @@
           },
           "deeplink" : {
             "type" : "string"
+          },
+          "bookingRules" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/BookingRule"
+            }
           }
         },
         "description" : "Options to book this particular product"
@@ -552,10 +558,19 @@
       "Account" : {
         "type" : "object",
         "properties" : {
+          "id" : {
+            "type" : "string"
+          },
           "email" : {
             "type" : "string"
           },
           "phoneNumber" : {
+            "type" : "string"
+          },
+          "givenName" : {
+            "type" : "string"
+          },
+          "surname" : {
             "type" : "string"
           }
         }
@@ -594,24 +609,27 @@
             "items" : {
               "$ref" : "#/components/schemas/PricingRules"
             }
+          },
+          "stops" : {
+            "$ref" : "#/components/schemas/DRTStops"
           }
         }
       },
       "Customer" : {
-        "required" : [ "email", "firstName", "id", "lastName", "phone" ],
+        "required" : [ "email", "givenName", "id", "phone", "surname" ],
         "type" : "object",
         "properties" : {
           "id" : {
             "type" : "string",
             "description" : "The identifier MaaS uses to identify the customer"
           },
-          "firstName" : {
+          "givenName" : {
             "type" : "string",
-            "description" : "customer first name"
+            "description" : "customer given name"
           },
-          "lastName" : {
+          "surname" : {
             "type" : "string",
-            "description" : "customer last name"
+            "description" : "customer surname"
           },
           "phone" : {
             "type" : "string",
@@ -833,6 +851,25 @@
           }
         }
       },
+      "BookingRule" : {
+        "type" : "object",
+        "properties" : {
+          "weekdays" : {
+            "type" : "string",
+            "description" : "weekdays following cron-like format. valid values are 'MON-TUE', 'WED', 'MON-SUN"
+          },
+          "prebooking" : {
+            "$ref" : "#/components/schemas/PreBookingRule"
+          },
+          "workingHours" : {
+            "type" : "array",
+            "description" : "working hours, currently only supports hour scale type",
+            "items" : {
+              "$ref" : "#/components/schemas/Scale"
+            }
+          }
+        }
+      },
       "AccountInput" : {
         "type" : "object",
         "properties" : {
@@ -840,6 +877,12 @@
             "type" : "string"
           },
           "phoneNumber" : {
+            "type" : "string"
+          },
+          "givenName" : {
+            "type" : "string"
+          },
+          "surname" : {
             "type" : "string"
           }
         }
@@ -885,6 +928,40 @@
           }
         },
         "description" : "Image stored remotely"
+      },
+      "DRTStops" : {
+        "required" : [ "features", "type" ],
+        "type" : "object",
+        "properties" : {
+          "features" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DRTStop"
+            }
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "FeatureCollection" ]
+          }
+        },
+        "description" : "List of DRT stops, if available"
+      },
+      "DRTStopProperties" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "id of the stop"
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "name of the stop"
+          },
+          "area_id" : {
+            "type" : "string",
+            "description" : "area id"
+          }
+        }
       },
       "Booking" : {
         "required" : [ "id", "state" ],
@@ -965,6 +1042,27 @@
           }
         },
         "description" : "Arbitrary information that a TO can add"
+      },
+      "Point" : {
+        "required" : [ "type" ],
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string",
+            "description" : "the geometry type",
+            "enum" : [ "Point", "POINT" ]
+          },
+          "coordinates" : {
+            "type" : "array",
+            "description" : "A single (X, Y) or (longitude, latitude) coordinate pair.",
+            "items" : {
+              "type" : "number",
+              "description" : "A single (X, Y) or (longitude, latitude) coordinate pair.",
+              "format" : "double"
+            }
+          }
+        },
+        "description" : "GeoJSON Point geometry"
       },
       "FarePart" : {
         "type" : "object",
@@ -1148,6 +1246,26 @@
         },
         "description" : "The asset type used in this leg as determined during booking"
       },
+      "DRTStop" : {
+        "required" : [ "geometry", "id", "properties", "type" ],
+        "type" : "object",
+        "properties" : {
+          "geometry" : {
+            "$ref" : "#/components/schemas/Point"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "properties" : {
+            "$ref" : "#/components/schemas/DRTStopProperties"
+          },
+          "type" : {
+            "type" : "string",
+            "description" : "the feature type",
+            "enum" : [ "Feature" ]
+          }
+        }
+      },
       "MultiPolygon" : {
         "required" : [ "type" ],
         "type" : "object",
@@ -1278,6 +1396,31 @@
           }
         },
         "description" : "List of price estimates"
+      },
+      "PreBookingRule" : {
+        "type" : "object",
+        "properties" : {
+          "minHoursBefore" : {
+            "type" : "integer",
+            "description" : "minimum hours before booking time",
+            "format" : "int32"
+          },
+          "minWeekdayBefore" : {
+            "type" : "string",
+            "description" : "minimum week day before booking time, goes along minTimeDayBefore"
+          },
+          "minTimeDayBefore" : {
+            "type" : "integer",
+            "description" : "minimum hour of the day before booking time, goes along with minWeekdayBefore",
+            "format" : "int32"
+          },
+          "maxDaysBefore" : {
+            "type" : "integer",
+            "description" : "maximum days of pre booking",
+            "format" : "int32"
+          }
+        },
+        "description" : "pre booking rule"
       },
       "Location" : {
         "required" : [ "latitude", "longitude" ],
