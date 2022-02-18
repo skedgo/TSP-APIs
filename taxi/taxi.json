@@ -13,15 +13,22 @@
     }
   },
   "paths" : {
-    "/account" : {
-      "post" : {
+    "/account/{accountId}" : {
+      "get" : {
         "tags" : [ "Booking-TO", "Account" ],
-        "summary" : "Create account",
-        "description" : "Create account on transport operator",
-        "operationId" : "updateLegStatus",
+        "summary" : "get account",
+        "description" : "get account info from transport operator",
+        "operationId" : "getAccount",
         "parameters" : [ {
           "name" : "x-access_key",
           "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "accountId",
+          "in" : "path",
+          "required" : true,
           "schema" : {
             "type" : "string"
           }
@@ -30,7 +37,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/AccountInput"
+                "$ref" : "#/components/schemas/BookingOperationInput"
               }
             }
           }
@@ -59,22 +66,15 @@
         }
       }
     },
-    "/account/{accountId}" : {
-      "get" : {
+    "/account" : {
+      "post" : {
         "tags" : [ "Booking-TO", "Account" ],
-        "summary" : "get account",
-        "description" : "get account info from transport operator",
-        "operationId" : "getAccount",
+        "summary" : "Create account",
+        "description" : "Create account on transport operator",
+        "operationId" : "updateLegStatus",
         "parameters" : [ {
           "name" : "x-access_key",
           "in" : "header",
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "accountId",
-          "in" : "path",
-          "required" : true,
           "schema" : {
             "type" : "string"
           }
@@ -83,7 +83,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/BookingOperationInput"
+                "$ref" : "#/components/schemas/AccountInput"
               }
             }
           }
@@ -384,43 +384,6 @@
         }
       }
     },
-    "/config" : {
-      "get" : {
-        "tags" : [ "Shared" ],
-        "summary" : "Endpoints available",
-        "description" : "All the endpoints implemented, with their corresponding URL",
-        "operationId" : "config",
-        "parameters" : [ {
-          "name" : "x-access_key",
-          "in" : "header",
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "List of endpoints implemented.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/EndpointsConfig"
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "This method requires an `x-access_key` and it is either missing or invalid, or the the credentials provided are not sufficient for access to the specified resource.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/provider" : {
       "get" : {
         "tags" : [ "Shared" ],
@@ -441,6 +404,43 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/Provider"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "This method requires an `x-access_key` and it is either missing or invalid, or the the credentials provided are not sufficient for access to the specified resource.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/config" : {
+      "get" : {
+        "tags" : [ "Shared" ],
+        "summary" : "Endpoints available",
+        "description" : "All the endpoints implemented, with their corresponding URL",
+        "operationId" : "config",
+        "parameters" : [ {
+          "name" : "x-access_key",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "List of endpoints implemented.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/EndpointsConfig"
                 }
               }
             }
@@ -612,11 +612,15 @@
           },
           "stops" : {
             "$ref" : "#/components/schemas/DRTStops"
+          },
+          "virtualStopsRequireStopsNearby" : {
+            "type" : "boolean",
+            "description" : "Whether virtual stops require public stops nearby or not"
           }
         }
       },
       "Customer" : {
-        "required" : [ "email", "givenName", "id", "phone", "surname" ],
+        "required" : [ "email", "givenName", "id", "phone", "requirements", "surname" ],
         "type" : "object",
         "properties" : {
           "id" : {
@@ -638,6 +642,9 @@
           "email" : {
             "type" : "string",
             "description" : "customer email"
+          },
+          "requirements" : {
+            "$ref" : "#/components/schemas/Requirements"
           }
         },
         "description" : "The user that wants to make this booking"
@@ -740,6 +747,19 @@
           }
         },
         "description" : "List of products available"
+      },
+      "Requirements" : {
+        "type" : "object",
+        "properties" : {
+          "abilities" : {
+            "type" : "array",
+            "description" : "Requirements the users has ((dis)abilities, share [TRUE|FALSE], preferences [TBD])",
+            "items" : {
+              "$ref" : "#/components/schemas/Requirement"
+            }
+          }
+        },
+        "description" : "Requirements the users has"
       },
       "BookingOutput" : {
         "required" : [ "id", "state" ],
@@ -1107,6 +1127,20 @@
       "Leg" : {
         "type" : "object",
         "properties" : {
+          "from" : {
+            "$ref" : "#/components/schemas/Location"
+          },
+          "to" : {
+            "$ref" : "#/components/schemas/Location"
+          },
+          "departureTime" : {
+            "type" : "string",
+            "description" : "The departure time of this leg"
+          },
+          "arrivalTime" : {
+            "type" : "string",
+            "description" : "The intended arrival time at the to place"
+          },
           "assetType" : {
             "$ref" : "#/components/schemas/AssetType"
           }
@@ -1227,6 +1261,22 @@
             "enum" : [ "NOT_STARTED", "PREPARING", "IN_USE", "FINISHED", "ISSUE_REPORTED", "CANCELLED" ]
           }
         }
+      },
+      "Requirement" : {
+        "type" : "object",
+        "properties" : {
+          "category" : {
+            "type" : "string",
+            "description" : "type of requirement, see enum for details",
+            "enum" : [ "HR", "HV", "AV", "AB", "AER", "K", "ZR", "RR" ]
+          },
+          "number" : {
+            "type" : "integer",
+            "description" : "amount of the requirement",
+            "format" : "int32"
+          }
+        },
+        "description" : "Requirements the users has ((dis)abilities, share [TRUE|FALSE], preferences [TBD])"
       },
       "AssetType" : {
         "type" : "object",
