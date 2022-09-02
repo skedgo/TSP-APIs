@@ -16,6 +16,10 @@ Recommended APIs that transport service providers implement, for them to be easi
 
 - [View in ReDocs UI](taxi).
 
+### Ticketing Services:
+
+- [View in ReDocs UI](ticketing).
+
 ### Info:
 
 - [View in ReDocs UI](info).
