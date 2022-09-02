@@ -13,12 +13,12 @@
     }
   },
   "paths" : {
-    "/info" : {
+    "/batch/info" : {
       "post" : {
         "tags" : [ "Info" ],
         "summary" : "Get real time information if exists.",
-        "description" : "Query for real time existing data based on input filter.",
-        "operationId" : "getInfo",
+        "description" : "Query for real time existing data based on batch input filter.",
+        "operationId" : "getInfoBatch",
         "parameters" : [ {
           "name" : "x-access_key",
           "in" : "header",
@@ -30,7 +30,10 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/InfoServiceInput"
+                "type" : "array",
+                "items" : {
+                  "$ref" : "#/components/schemas/BatchInfoServiceInput"
+                }
               }
             }
           }
@@ -41,7 +44,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/InfoGeoJSON"
+                  "$ref" : "#/components/schemas/BatchInfoGeoJSON"
                 }
               }
             }
@@ -89,6 +92,62 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/BikeLaneGeoJSON"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "This method requires an `x-access_key` and it is either missing or invalid, or the the credentials provided are not sufficient for access to the specified resource.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "error"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Unexpected error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/info" : {
+      "post" : {
+        "tags" : [ "Info" ],
+        "summary" : "Get real time information if exists.",
+        "description" : "Query for real time existing data based on input filter.",
+        "operationId" : "getInfo",
+        "parameters" : [ {
+          "name" : "x-access_key",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/InfoServiceInput"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Information available related to the given input",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InfoGeoJSON"
                 }
               }
             }
@@ -324,6 +383,17 @@
           "$ref" : "#/components/schemas/Geometry"
         } ]
       },
+      "BatchInfoGeoJSON" : {
+        "type" : "object",
+        "properties" : {
+          "empty" : {
+            "type" : "boolean"
+          }
+        },
+        "additionalProperties" : {
+          "$ref" : "#/components/schemas/InfoGeoJSON"
+        }
+      },
       "CoverageProperties" : {
         "type" : "object",
         "properties" : {
@@ -343,6 +413,10 @@
           },
           "stops" : {
             "$ref" : "#/components/schemas/DRTStops"
+          },
+          "virtualStopsRequireStopsNearby" : {
+            "type" : "boolean",
+            "description" : "Whether virtual stops require public stops nearby or not"
           }
         }
       },
@@ -416,7 +490,19 @@
           },
           "planId" : {
             "type" : "string",
-            "description" : "pricing rules or plan identifier"
+            "description" : "pricing rules or plan identifier (deprecated)"
+          },
+          "defaultPlanId" : {
+            "type" : "string",
+            "description" : "default pricing rules or plan identifier"
+          },
+          "planIds" : {
+            "type" : "array",
+            "description" : "list of pricing rules or plan identifiers available for this product",
+            "items" : {
+              "type" : "string",
+              "description" : "list of pricing rules or plan identifiers available for this product"
+            }
           }
         },
         "description" : "List of products available"
@@ -637,6 +723,38 @@
             "items" : {
               "$ref" : "#/components/schemas/Endpoint"
             }
+          }
+        }
+      },
+      "BatchInfoServiceInput" : {
+        "required" : [ "distance", "endTime", "id", "mode", "startTime" ],
+        "type" : "object",
+        "properties" : {
+          "mode" : {
+            "type" : "string",
+            "description" : "transport mode"
+          },
+          "points" : {
+            "$ref" : "#/components/schemas/Geometry"
+          },
+          "distance" : {
+            "type" : "integer",
+            "description" : "radius in meters to find info",
+            "format" : "int32"
+          },
+          "startTime" : {
+            "type" : "integer",
+            "description" : "date time start in millis",
+            "format" : "int64"
+          },
+          "endTime" : {
+            "type" : "integer",
+            "description" : "date time end in millis",
+            "format" : "int64"
+          },
+          "id" : {
+            "type" : "string",
+            "description" : "external id"
           }
         }
       },
@@ -904,6 +1022,26 @@
             "type" : "boolean",
             "description" : "Whether this provider is a combination of two (for Feonix)",
             "default" : false
+          },
+          "userPhoneRequired" : {
+            "type" : "boolean",
+            "description" : "Whether the phone number is required to create a user",
+            "default" : false
+          },
+          "quoteDefaultDurationInSeconds" : {
+            "type" : "integer",
+            "description" : "Whether the quote has a default duration before it expires, in seconds",
+            "format" : "int32"
+          },
+          "billingEnabled" : {
+            "type" : "boolean",
+            "description" : "Whether the provider has enabled in app payment",
+            "default" : false
+          },
+          "stripePublishableApiKey" : {
+            "type" : "string",
+            "description" : "if billing is enabled, and the provider has it's own stripe account, this is the key that FEs need to contact stripe for that account",
+            "default" : "null"
           }
         }
       },
@@ -1081,10 +1219,6 @@
           },
           "address" : {
             "type" : "string"
-          },
-          "earthRadius" : {
-            "type" : "number",
-            "format" : "double"
           }
         },
         "description" : "Location"
