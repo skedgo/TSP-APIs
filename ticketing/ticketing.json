@@ -1,8 +1,8 @@
 {
   "openapi" : "3.0.1",
   "info" : {
-    "title" : "Shared API",
-    "description" : "Alpha version of the shared TSP connector specs to connect to SkedGo's platform.\nReturns information in GeoJSON",
+    "title" : "Ticketing API",
+    "description" : "Alpha version of the ticketing TSP connector specs to connect to SkedGo's platform.\nReturns information in GeoJSON",
     "license" : {
       "name" : "Apache 2.0 License",
       "url" : "https://www.apache.org/licenses/LICENSE-2.0"
@@ -123,6 +123,98 @@
           }
         }
       }
+    },
+    "/tickets" : {
+      "post" : {
+        "tags" : [ "Booking-TO", "Ticketing" ],
+        "summary" : "Buy tickets",
+        "description" : "Buy the tickets listed for the given user and pay them with the stripe token",
+        "operationId" : "updateLegStatus",
+        "parameters" : [ {
+          "name" : "x-access_key",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/TicketsInput"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Tickets bought",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Account"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "This method requires an `x-access_key` and it is either missing or invalid, or the the credentials provided are not sufficient for access to the specified resource.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tickets/ephemeralKey" : {
+      "post" : {
+        "tags" : [ "Booking-TO", "Ticketing" ],
+        "summary" : "get ephemeral key",
+        "description" : "get ephemeral key for the given customer",
+        "operationId" : "getAccount",
+        "parameters" : [ {
+          "name" : "x-access_key",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Customer"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Ephemeral key",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Account"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "This method requires an `x-access_key` and it is either missing or invalid, or the the credentials provided are not sufficient for access to the specified resource.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "error"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components" : {
@@ -168,16 +260,23 @@
           }
         }
       },
-      "EndpointsConfig" : {
-        "required" : [ "endpoints" ],
+      "Account" : {
         "type" : "object",
         "properties" : {
-          "endpoints" : {
-            "type" : "array",
-            "description" : "List of endpoints available",
-            "items" : {
-              "$ref" : "#/components/schemas/Endpoint"
-            }
+          "id" : {
+            "type" : "string"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "phoneNumber" : {
+            "type" : "string"
+          },
+          "givenName" : {
+            "type" : "string"
+          },
+          "surname" : {
+            "type" : "string"
           }
         }
       },
@@ -207,51 +306,34 @@
           }
         }
       },
-      "ImageObject" : {
-        "required" : [ "contentUrl" ],
+      "Customer" : {
+        "required" : [ "email", "givenName", "id", "phone", "requirements", "surname" ],
         "type" : "object",
         "properties" : {
-          "caption" : {
+          "id" : {
             "type" : "string",
-            "description" : "The caption for this object"
+            "description" : "The identifier MaaS uses to identify the customer"
           },
-          "contentUrl" : {
+          "givenName" : {
             "type" : "string",
-            "description" : "URL to download image, or image code for SkedGo icons"
+            "description" : "customer given name"
           },
-          "fileFormat" : {
+          "surname" : {
             "type" : "string",
-            "description" : "Media type of image, including remoteIcon and remoteDarkIcon for SkedGo"
+            "description" : "customer surname"
           },
-          "width" : {
-            "type" : "integer",
-            "description" : "Width in pixels",
-            "format" : "int32"
+          "phone" : {
+            "type" : "string",
+            "description" : "customer phone"
           },
-          "height" : {
-            "type" : "integer",
-            "description" : "Height in pixels",
-            "format" : "int32"
+          "email" : {
+            "type" : "string",
+            "description" : "customer email"
+          },
+          "requirements" : {
+            "$ref" : "#/components/schemas/Requirements"
           }
-        },
-        "description" : "Image stored remotely"
-      },
-      "DRTStops" : {
-        "required" : [ "features", "type" ],
-        "type" : "object",
-        "properties" : {
-          "features" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/DRTStop"
-            }
-          },
-          "type" : {
-            "type" : "string",
-            "enum" : [ "FeatureCollection" ]
-          }
-        },
-        "description" : "List of DRT stops, if available"
+        }
       },
       "PricingRules" : {
         "required" : [ "fare" ],
@@ -306,23 +388,6 @@
           }
         }
       },
-      "DRTStopProperties" : {
-        "type" : "object",
-        "properties" : {
-          "id" : {
-            "type" : "string",
-            "description" : "id of the stop"
-          },
-          "name" : {
-            "type" : "string",
-            "description" : "name of the stop"
-          },
-          "area_id" : {
-            "type" : "string",
-            "description" : "area id"
-          }
-        }
-      },
       "Product" : {
         "required" : [ "id", "planId", "title" ],
         "type" : "object",
@@ -356,6 +421,148 @@
           }
         },
         "description" : "List of products available"
+      },
+      "Requirements" : {
+        "type" : "object",
+        "properties" : {
+          "abilities" : {
+            "type" : "array",
+            "description" : "Requirements the users has ((dis)abilities, share [TRUE|FALSE], preferences [TBD])",
+            "items" : {
+              "$ref" : "#/components/schemas/Requirement"
+            }
+          }
+        },
+        "description" : "Requirements the users has"
+      },
+      "Endpoint" : {
+        "required" : [ "name", "url" ],
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "description" : "Key identifying the type of endpoint this is",
+            "enum" : [ "provider", "coverage", "estimatePrice", "estimateTime", "stationInformation", "stationStatus", "freeBikeStatus", "info", "bikeLanes", "createBooking", "updateBookingStatus", "getBooking" ]
+          },
+          "url" : {
+            "type" : "string",
+            "description" : "URL for the endpoint, it can be absolute or relative"
+          }
+        },
+        "description" : "List of endpoints available"
+      },
+      "BookingRule" : {
+        "type" : "object",
+        "properties" : {
+          "weekdays" : {
+            "type" : "string",
+            "description" : "weekdays following cron-like format. valid values are 'MON-TUE', 'WED', 'MON-SUN"
+          },
+          "prebooking" : {
+            "$ref" : "#/components/schemas/PreBookingRule"
+          },
+          "workingHours" : {
+            "type" : "array",
+            "description" : "working hours, currently only supports hour scale type",
+            "items" : {
+              "$ref" : "#/components/schemas/Scale"
+            }
+          }
+        }
+      },
+      "EndpointsConfig" : {
+        "required" : [ "endpoints" ],
+        "type" : "object",
+        "properties" : {
+          "endpoints" : {
+            "type" : "array",
+            "description" : "List of endpoints available",
+            "items" : {
+              "$ref" : "#/components/schemas/Endpoint"
+            }
+          }
+        }
+      },
+      "Ticket" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "ticket id"
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "ticket name"
+          },
+          "rawHtml" : {
+            "type" : "string",
+            "description" : "raw html to be displayed to the final user"
+          }
+        },
+        "description" : "list of tickets to buy"
+      },
+      "ImageObject" : {
+        "required" : [ "contentUrl" ],
+        "type" : "object",
+        "properties" : {
+          "caption" : {
+            "type" : "string",
+            "description" : "The caption for this object"
+          },
+          "contentUrl" : {
+            "type" : "string",
+            "description" : "URL to download image, or image code for SkedGo icons"
+          },
+          "fileFormat" : {
+            "type" : "string",
+            "description" : "Media type of image, including remoteIcon and remoteDarkIcon for SkedGo"
+          },
+          "width" : {
+            "type" : "integer",
+            "description" : "Width in pixels",
+            "format" : "int32"
+          },
+          "height" : {
+            "type" : "integer",
+            "description" : "Height in pixels",
+            "format" : "int32"
+          }
+        },
+        "description" : "Image stored remotely"
+      },
+      "DRTStops" : {
+        "required" : [ "features", "type" ],
+        "type" : "object",
+        "properties" : {
+          "features" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DRTStop"
+            }
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "FeatureCollection" ]
+          }
+        },
+        "description" : "List of DRT stops, if available"
+      },
+      "DRTStopProperties" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "id of the stop"
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "name of the stop"
+          },
+          "area_id" : {
+            "type" : "string",
+            "description" : "area id"
+          }
+        }
       },
       "Coverage" : {
         "required" : [ "features", "type" ],
@@ -574,6 +781,29 @@
         },
         "description" : "Default vehicle type, as fallback for the cases where there is no specific information available"
       },
+      "Requirement" : {
+        "type" : "object",
+        "properties" : {
+          "category" : {
+            "type" : "string",
+            "description" : "type of requirement, see enum for details",
+            "enum" : [ "HR", "HV", "AV", "AB", "AER", "K", "ZR", "RR" ]
+          },
+          "number" : {
+            "type" : "string",
+            "description" : "code of requirement, second column"
+          },
+          "type" : {
+            "type" : "string",
+            "description" : "conditionally extra information, third column"
+          },
+          "memo" : {
+            "type" : "string",
+            "description" : "extra field for detailed information, not standardized"
+          }
+        },
+        "description" : "Requirements the users has ((dis)abilities, share [TRUE|FALSE], preferences [TBD])"
+      },
       "DRTStop" : {
         "required" : [ "geometry", "id", "properties", "type" ],
         "type" : "object",
@@ -594,21 +824,28 @@
           }
         }
       },
-      "Endpoint" : {
-        "required" : [ "name", "url" ],
+      "TicketsInput" : {
         "type" : "object",
         "properties" : {
-          "name" : {
-            "type" : "string",
-            "description" : "Key identifying the type of endpoint this is",
-            "enum" : [ "provider", "coverage", "estimatePrice", "estimateTime", "stationInformation", "stationStatus", "freeBikeStatus", "info", "bikeLanes", "createBooking", "updateBookingStatus", "getBooking" ]
+          "tickets" : {
+            "type" : "array",
+            "description" : "list of tickets to buy",
+            "items" : {
+              "$ref" : "#/components/schemas/Ticket"
+            }
           },
-          "url" : {
+          "agencyId" : {
             "type" : "string",
-            "description" : "URL for the endpoint, it can be absolute or relative"
+            "description" : "id of the agency"
+          },
+          "stripeToken" : {
+            "type" : "string",
+            "description" : "A Stripe token (begins with tok_), source (begins with card_), or payment method (begins with pm_) corresponding to a user-supplied credit or debit card that the provider can use to charge a user for the purchase."
+          },
+          "customer" : {
+            "$ref" : "#/components/schemas/Customer"
           }
-        },
-        "description" : "List of endpoints available"
+        }
       },
       "MultiPolygon" : {
         "required" : [ "type" ],
@@ -637,25 +874,6 @@
           }
         },
         "description" : "GeoJSON MultiPolygon geometry"
-      },
-      "BookingRule" : {
-        "type" : "object",
-        "properties" : {
-          "weekdays" : {
-            "type" : "string",
-            "description" : "weekdays following cron-like format. valid values are 'MON-TUE', 'WED', 'MON-SUN"
-          },
-          "prebooking" : {
-            "$ref" : "#/components/schemas/PreBookingRule"
-          },
-          "workingHours" : {
-            "type" : "array",
-            "description" : "working hours, currently only supports hour scale type",
-            "items" : {
-              "$ref" : "#/components/schemas/Scale"
-            }
-          }
-        }
       },
       "CompanyInfo" : {
         "required" : [ "name" ],

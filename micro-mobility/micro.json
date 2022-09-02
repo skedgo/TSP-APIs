@@ -352,6 +352,10 @@
           },
           "stops" : {
             "$ref" : "#/components/schemas/DRTStops"
+          },
+          "virtualStopsRequireStopsNearby" : {
+            "type" : "boolean",
+            "description" : "Whether virtual stops require public stops nearby or not"
           }
         }
       },
@@ -425,7 +429,19 @@
           },
           "planId" : {
             "type" : "string",
-            "description" : "pricing rules or plan identifier"
+            "description" : "pricing rules or plan identifier (deprecated)"
+          },
+          "defaultPlanId" : {
+            "type" : "string",
+            "description" : "default pricing rules or plan identifier"
+          },
+          "planIds" : {
+            "type" : "array",
+            "description" : "list of pricing rules or plan identifiers available for this product",
+            "items" : {
+              "type" : "string",
+              "description" : "list of pricing rules or plan identifiers available for this product"
+            }
           }
         },
         "description" : "List of products available"
@@ -475,12 +491,15 @@
             "type" : "string",
             "writeOnly" : true
           },
-          "jump_ebike_battery_level" : {
+          "battery_level" : {
             "type" : "string",
             "writeOnly" : true
           },
           "qrCode" : {
             "type" : "string"
+          },
+          "rental_uris" : {
+            "$ref" : "#/components/schemas/RentalURIs"
           },
           "isReserved" : {
             "type" : "integer",
@@ -503,10 +522,28 @@
             "type" : "integer",
             "format" : "int32"
           },
-          "rental_uris" : {
-            "$ref" : "#/components/schemas/TBD"
+          "rentalURIs" : {
+            "$ref" : "#/components/schemas/RentalURIs"
           }
         }
+      },
+      "RentalURIs" : {
+        "type" : "object",
+        "properties" : {
+          "android" : {
+            "type" : "string",
+            "description" : "URI that can be passed to an Android app"
+          },
+          "ios" : {
+            "type" : "string",
+            "description" : "URI that can be used on iOS to launch the rental app for this vehicle"
+          },
+          "web" : {
+            "type" : "string",
+            "description" : "URL that can be used by a web browser to show more information about renting a vehicle at this vehicle."
+          }
+        },
+        "description" : "A JSON object that contains rental URIs for Android, iOS, and web in the android, ios, and web fields."
       },
       "Endpoint" : {
         "required" : [ "name", "url" ],
@@ -525,8 +562,7 @@
         "description" : "List of endpoints available"
       },
       "TBD" : {
-        "type" : "object",
-        "description" : "A JSON object that contains rental URIs for Android, iOS, and web in the android, ios, and web fields."
+        "type" : "object"
       },
       "BookingRule" : {
         "type" : "object",
@@ -940,6 +976,26 @@
             "type" : "boolean",
             "description" : "Whether this provider is a combination of two (for Feonix)",
             "default" : false
+          },
+          "userPhoneRequired" : {
+            "type" : "boolean",
+            "description" : "Whether the phone number is required to create a user",
+            "default" : false
+          },
+          "quoteDefaultDurationInSeconds" : {
+            "type" : "integer",
+            "description" : "Whether the quote has a default duration before it expires, in seconds",
+            "format" : "int32"
+          },
+          "billingEnabled" : {
+            "type" : "boolean",
+            "description" : "Whether the provider has enabled in app payment",
+            "default" : false
+          },
+          "stripePublishableApiKey" : {
+            "type" : "string",
+            "description" : "if billing is enabled, and the provider has it's own stripe account, this is the key that FEs need to contact stripe for that account",
+            "default" : "null"
           }
         }
       },
