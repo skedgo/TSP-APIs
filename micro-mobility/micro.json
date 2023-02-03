@@ -1,0 +1,1140 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "Micro-mobility API",
+    "description" : "Work-in-progress proposal for a Micro-mobility APIs based on GBFS used to connect to SkedGo's platform. In the process to be re-designed",
+    "license" : {
+      "name" : "Apache 2.0 License",
+      "url" : "https://www.apache.org/licenses/LICENSE-2.0"
+    },
+    "version" : "0.1.0",
+    "x-logo" : {
+      "url" : "https://developer.tripgo.com/img/tripgo-api-logo-color.svg"
+    }
+  },
+  "paths" : {
+    "/{coverageID}/station/information" : {
+      "get" : {
+        "tags" : [ "Micro-mobility" ],
+        "summary" : "bike/car stations of a system",
+        "description" : "Get a list of stations for the given system. Each station will be a GeoJSON Feature, and aggregated into a GeoJSON FeatureCollection (based on station_information.json from GBFS)",
+        "operationId" : "getStationInformation",
+        "parameters" : [ {
+          "name" : "coverageID",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "A list of the stations for the given request. Each station will be a GeoJSON Feature as part of a FeatureCollection, and have information about rentals and returns.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/StationInformation"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "This method requires an `x-access_key` and it is either missing or invalid, or the the credentials provided are not sufficient for access to the specified resource.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "error"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Unexpected error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{coverageID}/station/status" : {
+      "get" : {
+        "tags" : [ "Micro-mobility" ],
+        "summary" : "bike/car stations statuses of a system",
+        "description" : "Station status returns information about real-time availability of the given station. For example, available places to park (any vehicle), or available vehicles to pickup (for shared cars/bikes).",
+        "operationId" : "getStationStatus",
+        "parameters" : [ {
+          "name" : "coverageID",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "A list of the stations statuses for the given request. Each station will be a GeoJSON Feature as part of a FeatureCollection, and have information about rentals and returns.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/StationStatuses"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "This method requires an `x-access_key` and it is either missing or invalid, or the the credentials provided are not sufficient for access to the specified resource.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "error"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Unexpected error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{coverageID}/free/bike/status" : {
+      "get" : {
+        "tags" : [ "Micro-mobility" ],
+        "summary" : "bikes available for rent",
+        "description" : "Describes bikes that are not at a station and are not currently in the middle of an active ride (based on free_bike_status.json from GBFS). Required of systems that don't utilize docks or offer bikes for rent outside of stations.",
+        "operationId" : "getFreeBikeStatus",
+        "parameters" : [ {
+          "name" : "coverageID",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "A list of the free bikes",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FreeBikes"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "This method requires an `x-access_key` and it is either missing or invalid, or the the credentials provided are not sufficient for access to the specified resource.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "error"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Unexpected error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/coverage" : {
+      "get" : {
+        "tags" : [ "Shared" ],
+        "summary" : "All supported areas",
+        "description" : "All the coverage areas that this operator serves, including optionally (but highly recommended!) information on products and prices. Information about each area is returned as a GeoJSON Feature, within a single GeoJSON FeatureCollection.",
+        "operationId" : "coverage",
+        "parameters" : [ {
+          "name" : "x-access_key",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Detailed information on the coverage of the provider.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Coverage"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "This method requires an `x-access_key` and it is either missing or invalid, or the the credentials provided are not sufficient for access to the specified resource.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/provider" : {
+      "get" : {
+        "tags" : [ "Shared" ],
+        "summary" : "Information of the provider",
+        "description" : "Information about the provider, including company info and enabled endpoints",
+        "operationId" : "provider",
+        "parameters" : [ {
+          "name" : "x-access_key",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Detailed information on provider",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Provider"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "This method requires an `x-access_key` and it is either missing or invalid, or the the credentials provided are not sufficient for access to the specified resource.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/config" : {
+      "get" : {
+        "tags" : [ "Shared" ],
+        "summary" : "Endpoints available",
+        "description" : "All the endpoints implemented, with their corresponding URL",
+        "operationId" : "config",
+        "parameters" : [ {
+          "name" : "x-access_key",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "List of endpoints implemented.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/EndpointsConfig"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "This method requires an `x-access_key` and it is either missing or invalid, or the the credentials provided are not sufficient for access to the specified resource.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "StationInformationFeature" : {
+        "required" : [ "id", "type" ],
+        "type" : "object",
+        "properties" : {
+          "geometry" : {
+            "$ref" : "#/components/schemas/Point"
+          },
+          "id" : {
+            "type" : "string",
+            "description" : "Unique identifier of a station"
+          },
+          "properties" : {
+            "$ref" : "#/components/schemas/StationInformationProperties"
+          },
+          "type" : {
+            "type" : "string",
+            "description" : "the feature type",
+            "enum" : [ "Feature" ]
+          }
+        }
+      },
+      "BookingOption" : {
+        "type" : "object",
+        "properties" : {
+          "website" : {
+            "type" : "string"
+          },
+          "phone" : {
+            "type" : "string"
+          },
+          "deeplink" : {
+            "type" : "string"
+          },
+          "bookingRules" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/BookingRule"
+            }
+          }
+        },
+        "description" : "Options to book this particular product"
+      },
+      "CoverageArea" : {
+        "required" : [ "geometry", "id", "properties", "type" ],
+        "type" : "object",
+        "properties" : {
+          "geometry" : {
+            "$ref" : "#/components/schemas/MultiPolygon"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "properties" : {
+            "$ref" : "#/components/schemas/CoverageProperties"
+          },
+          "type" : {
+            "type" : "string",
+            "description" : "the feature type",
+            "enum" : [ "Feature" ]
+          }
+        }
+      },
+      "CoverageProperties" : {
+        "type" : "object",
+        "properties" : {
+          "products" : {
+            "type" : "array",
+            "description" : "List of products available",
+            "items" : {
+              "$ref" : "#/components/schemas/Product"
+            }
+          },
+          "pricingRules" : {
+            "type" : "array",
+            "description" : "List of pricing plans available",
+            "items" : {
+              "$ref" : "#/components/schemas/PricingRules"
+            }
+          },
+          "stops" : {
+            "$ref" : "#/components/schemas/DRTStops"
+          },
+          "virtualStopsRequireStopsNearby" : {
+            "type" : "boolean",
+            "description" : "Whether virtual stops require public stops nearby or not"
+          }
+        }
+      },
+      "PricingRules" : {
+        "required" : [ "fare" ],
+        "type" : "object",
+        "properties" : {
+          "planId" : {
+            "type" : "string",
+            "description" : "a unique identifier for this plan in the system"
+          },
+          "url" : {
+            "type" : "string",
+            "description" : "a fully qualified URL where the customer can learn more about this particular scheme"
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "name of this pricing scheme"
+          },
+          "fare" : {
+            "$ref" : "#/components/schemas/Fare"
+          },
+          "isTaxable" : {
+            "type" : "boolean"
+          },
+          "description" : {
+            "type" : "string",
+            "description" : "Text field describing the particular pricing plan in human readable terms."
+          }
+        },
+        "description" : "List of pricing plans available"
+      },
+      "RGBColor" : {
+        "required" : [ "blue", "green", "red" ],
+        "type" : "object",
+        "properties" : {
+          "red" : {
+            "maximum" : 255,
+            "minimum" : 0,
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "blue" : {
+            "maximum" : 255,
+            "minimum" : 0,
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "green" : {
+            "maximum" : 255,
+            "minimum" : 0,
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "Product" : {
+        "required" : [ "id", "planId", "title" ],
+        "type" : "object",
+        "properties" : {
+          "title" : {
+            "type" : "string",
+            "description" : "Human-friendly string to describe this product."
+          },
+          "id" : {
+            "type" : "string",
+            "description" : "unique id of the produce for this provider"
+          },
+          "bookingOption" : {
+            "$ref" : "#/components/schemas/BookingOption"
+          },
+          "planId" : {
+            "type" : "string",
+            "description" : "pricing rules or plan identifier (deprecated)"
+          },
+          "defaultPlanId" : {
+            "type" : "string",
+            "description" : "default pricing rules or plan identifier"
+          },
+          "planIds" : {
+            "type" : "array",
+            "description" : "list of pricing rules or plan identifiers available for this product",
+            "items" : {
+              "type" : "string",
+              "description" : "list of pricing rules or plan identifiers available for this product"
+            }
+          }
+        },
+        "description" : "List of products available"
+      },
+      "StationStatusFeature" : {
+        "required" : [ "id", "type" ],
+        "type" : "object",
+        "properties" : {
+          "geometry" : {
+            "$ref" : "#/components/schemas/Point"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "properties" : {
+            "$ref" : "#/components/schemas/StationStatus"
+          },
+          "type" : {
+            "type" : "string",
+            "description" : "the feature type",
+            "enum" : [ "Feature" ]
+          }
+        }
+      },
+      "FreeBikeStatusProperties" : {
+        "required" : [ "isDisabled", "isReserved" ],
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "is_reserved" : {
+            "type" : "integer",
+            "format" : "int32",
+            "writeOnly" : true
+          },
+          "is_disabled" : {
+            "type" : "integer",
+            "format" : "int32",
+            "writeOnly" : true
+          },
+          "vehicle_type" : {
+            "type" : "string",
+            "writeOnly" : true
+          },
+          "region_id" : {
+            "type" : "string",
+            "writeOnly" : true
+          },
+          "battery_level" : {
+            "type" : "string",
+            "writeOnly" : true
+          },
+          "qrCode" : {
+            "type" : "string"
+          },
+          "rental_uris" : {
+            "$ref" : "#/components/schemas/RentalURIs"
+          },
+          "isReserved" : {
+            "type" : "integer",
+            "description" : "1/0 value - is the bike currently reserved for someone else",
+            "format" : "int32"
+          },
+          "isDisabled" : {
+            "type" : "integer",
+            "description" : "1/0 value - is the bike currently disabled (broken)",
+            "format" : "int32"
+          },
+          "regionId" : {
+            "type" : "string"
+          },
+          "vehicleType" : {
+            "type" : "string",
+            "enum" : [ "bike", "scooter", "pedelec" ]
+          },
+          "batteryLevel" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "rentalURIs" : {
+            "$ref" : "#/components/schemas/RentalURIs"
+          }
+        }
+      },
+      "RentalURIs" : {
+        "type" : "object",
+        "properties" : {
+          "android" : {
+            "type" : "string",
+            "description" : "URI that can be passed to an Android app"
+          },
+          "ios" : {
+            "type" : "string",
+            "description" : "URI that can be used on iOS to launch the rental app for this vehicle"
+          },
+          "web" : {
+            "type" : "string",
+            "description" : "URL that can be used by a web browser to show more information about renting a vehicle at this vehicle."
+          }
+        },
+        "description" : "A JSON object that contains rental URIs for Android, iOS, and web in the android, ios, and web fields."
+      },
+      "Endpoint" : {
+        "required" : [ "name", "url" ],
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "description" : "Key identifying the type of endpoint this is",
+            "enum" : [ "provider", "coverage", "estimatePrice", "estimateTime", "stationInformation", "stationStatus", "freeBikeStatus", "info", "bikeLanes", "createBooking", "updateBookingStatus", "getBooking" ]
+          },
+          "url" : {
+            "type" : "string",
+            "description" : "URL for the endpoint, it can be absolute or relative"
+          }
+        },
+        "description" : "List of endpoints available"
+      },
+      "TBD" : {
+        "type" : "object"
+      },
+      "BookingRule" : {
+        "type" : "object",
+        "properties" : {
+          "weekdays" : {
+            "type" : "string",
+            "description" : "weekdays following cron-like format. valid values are 'MON-TUE', 'WED', 'MON-SUN"
+          },
+          "prebooking" : {
+            "$ref" : "#/components/schemas/PreBookingRule"
+          },
+          "workingHours" : {
+            "type" : "array",
+            "description" : "working hours, currently only supports hour scale type",
+            "items" : {
+              "$ref" : "#/components/schemas/Scale"
+            }
+          }
+        }
+      },
+      "StationStatus" : {
+        "required" : [ "is_renting", "last_reported", "num_bikes_available", "station_id" ],
+        "type" : "object",
+        "properties" : {
+          "station_id" : {
+            "type" : "string",
+            "description" : "The ID of the station.",
+            "example" : "25"
+          },
+          "num_bikes_available" : {
+            "type" : "integer",
+            "description" : "The number of bikes that the station has available for rent.",
+            "format" : "int32"
+          },
+          "num_bikes_disabled" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "num_docks_available" : {
+            "type" : "integer",
+            "description" : "The number of docks that the station has available for returns.",
+            "format" : "int32"
+          },
+          "num_docks_disabled" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "is_installed" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "is_renting" : {
+            "type" : "integer",
+            "description" : "Whether or not the station is currently renting bikes (even if the station is empty, if it is set to allow rentals this value should be 1).",
+            "format" : "int32"
+          },
+          "is_returning" : {
+            "type" : "integer",
+            "description" : "Whether or not the station is accepting bike returns (if a station is full but would allow a return if it was not full then this value should be 1)",
+            "format" : "int32"
+          },
+          "last_reported" : {
+            "type" : "integer",
+            "description" : "The last time the station's information was checked, in ISO-8601 format.",
+            "format" : "int64"
+          }
+        }
+      },
+      "StationStatuses" : {
+        "required" : [ "features", "type" ],
+        "type" : "object",
+        "properties" : {
+          "features" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/StationStatusFeature"
+            }
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "FeatureCollection" ]
+          }
+        }
+      },
+      "EndpointsConfig" : {
+        "required" : [ "endpoints" ],
+        "type" : "object",
+        "properties" : {
+          "endpoints" : {
+            "type" : "array",
+            "description" : "List of endpoints available",
+            "items" : {
+              "$ref" : "#/components/schemas/Endpoint"
+            }
+          }
+        }
+      },
+      "StationInformationProperties" : {
+        "required" : [ "name" ],
+        "type" : "object",
+        "properties" : {
+          "address" : {
+            "type" : "string"
+          },
+          "capacity" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "station_id" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "The name of the bike location."
+          },
+          "short_name" : {
+            "type" : "string"
+          },
+          "region_id" : {
+            "type" : "string",
+            "description" : "The region ID string for the bike location."
+          },
+          "rental_methods" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "rental_url" : {
+            "type" : "string"
+          },
+          "rental_apps" : {
+            "$ref" : "#/components/schemas/TBD"
+          }
+        }
+      },
+      "ImageObject" : {
+        "required" : [ "contentUrl" ],
+        "type" : "object",
+        "properties" : {
+          "caption" : {
+            "type" : "string",
+            "description" : "The caption for this object"
+          },
+          "contentUrl" : {
+            "type" : "string",
+            "description" : "URL to download image, or image code for SkedGo icons"
+          },
+          "fileFormat" : {
+            "type" : "string",
+            "description" : "Media type of image, including remoteIcon and remoteDarkIcon for SkedGo"
+          },
+          "width" : {
+            "type" : "integer",
+            "description" : "Width in pixels",
+            "format" : "int32"
+          },
+          "height" : {
+            "type" : "integer",
+            "description" : "Height in pixels",
+            "format" : "int32"
+          }
+        },
+        "description" : "Image stored remotely"
+      },
+      "DRTStops" : {
+        "required" : [ "features", "type" ],
+        "type" : "object",
+        "properties" : {
+          "features" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DRTStop"
+            }
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "FeatureCollection" ]
+          }
+        },
+        "description" : "List of DRT stops, if available"
+      },
+      "DRTStopProperties" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "id of the stop"
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "name of the stop"
+          },
+          "area_id" : {
+            "type" : "string",
+            "description" : "area id"
+          }
+        }
+      },
+      "StationInformation" : {
+        "required" : [ "features", "type" ],
+        "type" : "object",
+        "properties" : {
+          "features" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/StationInformationFeature"
+            }
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "FeatureCollection" ]
+          }
+        }
+      },
+      "FreeBikeStatus" : {
+        "required" : [ "id", "type" ],
+        "type" : "object",
+        "properties" : {
+          "geometry" : {
+            "$ref" : "#/components/schemas/Point"
+          },
+          "id" : {
+            "type" : "string",
+            "description" : "Unique identifier of a bike"
+          },
+          "properties" : {
+            "$ref" : "#/components/schemas/FreeBikeStatusProperties"
+          },
+          "type" : {
+            "type" : "string",
+            "description" : "the feature type",
+            "enum" : [ "Feature" ]
+          }
+        }
+      },
+      "Coverage" : {
+        "required" : [ "features", "type" ],
+        "type" : "object",
+        "properties" : {
+          "features" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CoverageArea"
+            }
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "FeatureCollection" ]
+          }
+        }
+      },
+      "Scale" : {
+        "type" : "object",
+        "properties" : {
+          "from" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "to" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "KM", "MILE", "HOUR", "MINUTE", "WEEKDAY" ]
+          },
+          "proportional" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "Point" : {
+        "required" : [ "type" ],
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string",
+            "description" : "the geometry type",
+            "enum" : [ "Point", "POINT" ]
+          },
+          "coordinates" : {
+            "type" : "array",
+            "description" : "A single (X, Y) or (longitude, latitude) coordinate pair.",
+            "items" : {
+              "type" : "number",
+              "description" : "A single (X, Y) or (longitude, latitude) coordinate pair.",
+              "format" : "double"
+            }
+          }
+        },
+        "description" : "GeoJSON Point geometry"
+      },
+      "FarePart" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "description" : "name of this pricing part"
+          },
+          "amount" : {
+            "type" : "number",
+            "format" : "float"
+          },
+          "currencyCode" : {
+            "type" : "string"
+          },
+          "taxRate" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "FIXED", "FLEX", "MAX", "MIN" ]
+          },
+          "unitType" : {
+            "type" : "string",
+            "enum" : [ "KM", "SECOND", "MINUTE", "HOUR", "MILE", "PERCENTAGE" ]
+          },
+          "units" : {
+            "type" : "number",
+            "description" : "the number of km, seconds etc in the `per` part. In the first example of the description this should be 2.0",
+            "format" : "float"
+          },
+          "scales" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Scale"
+            }
+          }
+        },
+        "description" : "this describes a part of the fare (or discount).It contains a for instance the startup costs (fixed) or the flex part (e.g. 1.25 EUR per 2.0 MILES).The amount is tax included. In case of discounts, the values are negative.With 'MAX' you can specify e.g. a maximum of 15 euro per day. Percentage is mainly added for discounts.The `scale` properties create the ability to communicate scales(e.g. the first 4 kilometers you've to pay EUR 0.35 per kilometer, the kilometers 4 until 8 EUR 0.50 and above it EUR 0.80 per kilometer)."
+      },
+      "Fare" : {
+        "type" : "object",
+        "properties" : {
+          "estimated" : {
+            "type" : "boolean"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "bookingFee" : {
+            "type" : "number",
+            "description" : "Fee for booking in advance",
+            "format" : "float"
+          },
+          "waitingMaxSpeed" : {
+            "type" : "integer",
+            "description" : "Wait time charged while the vehicle is stopped or slowed to less than X KM per hour",
+            "format" : "int32"
+          },
+          "parts" : {
+            "type" : "array",
+            "description" : "this describes a part of the fare (or discount).It contains a for instance the startup costs (fixed) or the flex part (e.g. 1.25 EUR per 2.0 MILES).The amount is tax included. In case of discounts, the values are negative.With 'MAX' you can specify e.g. a maximum of 15 euro per day. Percentage is mainly added for discounts.The `scale` properties create the ability to communicate scales(e.g. the first 4 kilometers you've to pay EUR 0.35 per kilometer, the kilometers 4 until 8 EUR 0.50 and above it EUR 0.80 per kilometer).",
+            "items" : {
+              "$ref" : "#/components/schemas/FarePart"
+            }
+          }
+        },
+        "description" : "the total fare is the sum of all parts, except for the 'MAX' farePart. This one describes the maximum price for the complete leg.\nestimated: is this fare an estimation?"
+      },
+      "AppInfo" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "appURLiOS" : {
+            "type" : "string"
+          },
+          "appURLAndroid" : {
+            "type" : "string"
+          },
+          "deepLinkPattern" : {
+            "type" : "string",
+            "description" : "Will be used when booking is available, if we need need to add any of the enabled params.Deep link pattern, including the following placeholders between <>: fromLat, fromLng, fromAddress, toLat, toLng, toAddress, productId"
+          },
+          "deepLink" : {
+            "type" : "string",
+            "description" : "Will be user to open the app, any time, and also for bookings if deepLinkPattern is not present"
+          }
+        }
+      },
+      "Provider" : {
+        "required" : [ "companyInfo", "modesEnabled" ],
+        "type" : "object",
+        "properties" : {
+          "companyInfo" : {
+            "$ref" : "#/components/schemas/CompanyInfo"
+          },
+          "modesEnabled" : {
+            "type" : "array",
+            "description" : "modes enabled for this provider",
+            "items" : {
+              "type" : "string",
+              "description" : "modes enabled for this provider",
+              "enum" : [ "pt_pub, ps_tax, ps_tnc, ps_shu, cy_bic-s, me_car-s, me_car-r, me_car-p" ]
+            },
+            "enum" : [ "pt_pub, ps_tax, ps_tnc, ps_shu, cy_bic-s, me_car-s, me_car-r, me_car-p" ]
+          },
+          "preferGenericMode" : {
+            "type" : "boolean",
+            "description" : "Whether is preferred to use the generic mode over the specific one",
+            "default" : false
+          },
+          "defaultVehicleType" : {
+            "$ref" : "#/components/schemas/ShareVehicleType"
+          },
+          "combined" : {
+            "type" : "boolean",
+            "description" : "Whether this provider is a combination of two (for Feonix)",
+            "default" : false
+          },
+          "userPhoneRequired" : {
+            "type" : "boolean",
+            "description" : "Whether the phone number is required to create a user",
+            "default" : false
+          },
+          "quoteDefaultDurationInSeconds" : {
+            "type" : "integer",
+            "description" : "Whether the quote has a default duration before it expires, in seconds",
+            "format" : "int32"
+          },
+          "billingEnabled" : {
+            "type" : "boolean",
+            "description" : "Whether the provider has enabled in app payment",
+            "default" : false
+          },
+          "stripePublishableApiKey" : {
+            "type" : "string",
+            "description" : "if billing is enabled, and the provider has it's own stripe account, this is the key that FEs need to contact stripe for that account",
+            "default" : "null"
+          }
+        }
+      },
+      "ShareVehicleType" : {
+        "required" : [ "formFactor", "propulsionType" ],
+        "type" : "object",
+        "properties" : {
+          "formFactor" : {
+            "type" : "string",
+            "description" : "The vehicle's general form factor following GBFS 2.1 standard",
+            "enum" : [ "BICYCLE,CAR,MOPED,SCOOTER,OTHER" ]
+          },
+          "propulsionType" : {
+            "type" : "string",
+            "description" : "The primary propulsion type of the vehicle following GBFS 2.1 standard",
+            "enum" : [ "HUMAN,ELECTRIC_ASSIST,ELECTRIC,COMBUSTION" ]
+          }
+        },
+        "description" : "Default vehicle type, as fallback for the cases where there is no specific information available"
+      },
+      "DRTStop" : {
+        "required" : [ "geometry", "id", "properties", "type" ],
+        "type" : "object",
+        "properties" : {
+          "geometry" : {
+            "$ref" : "#/components/schemas/Point"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "properties" : {
+            "$ref" : "#/components/schemas/DRTStopProperties"
+          },
+          "type" : {
+            "type" : "string",
+            "description" : "the feature type",
+            "enum" : [ "Feature" ]
+          }
+        }
+      },
+      "MultiPolygon" : {
+        "required" : [ "type" ],
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string",
+            "description" : "the geometry type",
+            "enum" : [ "MultiPolygon", "MULTIPOLYGON" ]
+          },
+          "coordinates" : {
+            "type" : "array",
+            "items" : {
+              "type" : "array",
+              "items" : {
+                "type" : "array",
+                "items" : {
+                  "type" : "array",
+                  "items" : {
+                    "type" : "number",
+                    "format" : "double"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description" : "GeoJSON MultiPolygon geometry"
+      },
+      "FreeBikes" : {
+        "required" : [ "features", "type" ],
+        "type" : "object",
+        "properties" : {
+          "features" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/FreeBikeStatus"
+            }
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "FeatureCollection" ]
+          }
+        }
+      },
+      "CompanyInfo" : {
+        "required" : [ "name" ],
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "address" : {
+            "type" : "string"
+          },
+          "phone" : {
+            "type" : "string"
+          },
+          "website" : {
+            "type" : "string"
+          },
+          "logos" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ImageObject"
+            }
+          },
+          "color" : {
+            "$ref" : "#/components/schemas/RGBColor"
+          },
+          "appInfo" : {
+            "$ref" : "#/components/schemas/AppInfo"
+          }
+        }
+      },
+      "PreBookingRule" : {
+        "type" : "object",
+        "properties" : {
+          "minHoursBefore" : {
+            "type" : "integer",
+            "description" : "minimum hours before booking time",
+            "format" : "int32"
+          },
+          "minWeekdayBefore" : {
+            "type" : "string",
+            "description" : "minimum week day before booking time, goes along minTimeDayBefore"
+          },
+          "minTimeDayBefore" : {
+            "type" : "integer",
+            "description" : "minimum hour of the day before booking time, goes along with minWeekdayBefore",
+            "format" : "int32"
+          },
+          "maxDaysBefore" : {
+            "type" : "integer",
+            "description" : "maximum days of pre booking",
+            "format" : "int32"
+          }
+        },
+        "description" : "pre booking rule"
+      }
+    }
+  }
+}
