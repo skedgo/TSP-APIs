@@ -13,6 +13,52 @@
     }
   },
   "paths" : {
+    "/planning/offers" : {
+      "post" : {
+        "tags" : [ "Booking-TO" ],
+        "summary" : "create booking offers",
+        "description" : "Retrieve booking options",
+        "operationId" : "createBookingOffers",
+        "parameters" : [ {
+          "name" : "x-access_key",
+          "in" : "header",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PlanningRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Planning response",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Planning"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "This method requires an `x-access_key` and it is either missing or invalid, or the the credentials provided are not sufficient for access to the specified resource.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/bookings" : {
       "post" : {
         "tags" : [ "Booking-TO" ],
@@ -41,7 +87,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/BookingOutput"
+                  "$ref" : "#/components/schemas/Booking"
                 }
               }
             }
@@ -231,9 +277,25 @@
         "description" : "what kind of asset is this? Classify it, give the aspects. Most aspects are optional and should be used when applicable."
       },
       "Customer" : {
-        "required" : [ "email", "givenName", "id", "phone", "requirements", "surname" ],
+        "required" : [ "email", "givenName", "id", "phone", "referenceNumber", "requirements", "surname" ],
         "type" : "object",
         "properties" : {
+          "isValidated" : {
+            "type" : "boolean",
+            "description" : "Whether this traveler's identity and properties have been verified by the MaaS provider"
+          },
+          "age" : {
+            "type" : "integer",
+            "description" : "Age of the traveler, may be approximate",
+            "format" : "int32"
+          },
+          "referenceNumber" : {
+            "type" : "string",
+            "description" : "reference number of the traveler. This number could be used to refer to in the planning result (Currently used for device id)"
+          },
+          "requirements" : {
+            "$ref" : "#/components/schemas/Requirements"
+          },
           "id" : {
             "type" : "string",
             "description" : "The identifier MaaS uses to identify the customer"
@@ -253,15 +315,6 @@
           "email" : {
             "type" : "string",
             "description" : "customer email"
-          },
-          "requirements" : {
-            "$ref" : "#/components/schemas/Requirements"
-          },
-          "lastName" : {
-            "type" : "string"
-          },
-          "firstName" : {
-            "type" : "string"
           }
         },
         "description" : "The user that wants to make this booking"
@@ -274,84 +327,6 @@
             "type" : "string",
             "description" : "booking operation",
             "enum" : [ "CANCEL", "EXPIRE", "DENY", "COMMIT" ]
-          }
-        }
-      },
-      "BookingOutput" : {
-        "required" : [ "id", "state" ],
-        "type" : "object",
-        "properties" : {
-          "id" : {
-            "type" : "string",
-            "description" : "A unique identifier for the TO to know this booking by"
-          },
-          "state" : {
-            "type" : "string",
-            "description" : "Booking status",
-            "enum" : [ "NEW", "PENDING", "REJECTED", "CONDITIONAL_CONFIRMED", "CONFIRMED", "CANCELLED", "STARTED", "FINISHED", "COMMIT" ]
-          }
-        }
-      },
-      "Requirements" : {
-        "type" : "object",
-        "properties" : {
-          "abilities" : {
-            "type" : "array",
-            "description" : "Requirements the users has ((dis)abilities, share [TRUE|FALSE], preferences [TBD])",
-            "items" : {
-              "$ref" : "#/components/schemas/Requirement"
-            }
-          }
-        },
-        "description" : "Requirements the users has"
-      },
-      "BookingRequest" : {
-        "type" : "object",
-        "properties" : {
-          "id" : {
-            "type" : "string",
-            "description" : "A unique identifier for the TO to know this booking by"
-          },
-          "from" : {
-            "$ref" : "#/components/schemas/Location"
-          },
-          "to" : {
-            "$ref" : "#/components/schemas/Location"
-          },
-          "customer" : {
-            "$ref" : "#/components/schemas/Customer"
-          },
-          "pickupTime" : {
-            "type" : "string",
-            "description" : "ISO-8601 formatted date. Pick up time"
-          },
-          "note" : {
-            "type" : "string",
-            "description" : "Booking note"
-          },
-          "callbackUrl" : {
-            "type" : "string",
-            "description" : "base callback/webhook url to send updates to (see /bookings/{bookingID}/events and /legs/{legID}/events)"
-          }
-        }
-      },
-      "LegOperationInput" : {
-        "required" : [ "event" ],
-        "type" : "object",
-        "properties" : {
-          "operation" : {
-            "type" : "string",
-            "writeOnly" : true,
-            "enum" : [ "PREPARE", "SET_IN_USE", "PAUSE", "FINISH", "TIME_POSTPONE" ]
-          },
-          "event" : {
-            "type" : "string",
-            "description" : "event operation",
-            "enum" : [ "PREPARE", "SET_IN_USE", "PAUSE", "FINISH", "TIME_POSTPONE" ]
-          },
-          "time" : {
-            "type" : "string",
-            "description" : "ISO-8601 formatted date. New pick up time"
           }
         }
       },
@@ -374,6 +349,14 @@
           "to" : {
             "$ref" : "#/components/schemas/Location"
           },
+          "departureTime" : {
+            "type" : "string",
+            "description" : "ISO-8601 formatted date. Departure time"
+          },
+          "arrivalTime" : {
+            "type" : "string",
+            "description" : "ISO-8601 formatted date. Arrival time"
+          },
           "customer" : {
             "$ref" : "#/components/schemas/Customer"
           },
@@ -384,27 +367,159 @@
               "$ref" : "#/components/schemas/Leg"
             }
           },
-          "extraData" : {
-            "$ref" : "#/components/schemas/ExtraData"
+          "extraInfo" : {
+            "$ref" : "#/components/schemas/ExtraInfo"
+          },
+          "callbackUrl" : {
+            "type" : "string",
+            "description" : "base callback/webhook url to send updates to (see /bookings/{bookingID}/events and /legs/{legID}/events)"
+          },
+          "pricing" : {
+            "$ref" : "#/components/schemas/Fare"
           }
         }
       },
-      "ExtraData" : {
+      "ExtraInfo" : {
         "type" : "object",
         "properties" : {
           "driverFirstName" : {
             "type" : "string",
             "description" : "Driver first name"
+          },
+          "serviceId" : {
+            "type" : "string",
+            "description" : "Service id, if known"
           }
         },
         "description" : "Arbitrary information that a TO can add"
       },
+      "Scale" : {
+        "type" : "object",
+        "properties" : {
+          "from" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "to" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "KM", "MILE", "HOUR", "MINUTE", "WEEKDAY" ]
+          },
+          "proportional" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "FarePart" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "description" : "name of this pricing part"
+          },
+          "amount" : {
+            "type" : "number",
+            "format" : "float"
+          },
+          "currencyCode" : {
+            "type" : "string"
+          },
+          "taxRate" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "FIXED", "FLEX", "MAX", "MIN" ]
+          },
+          "unitType" : {
+            "type" : "string",
+            "enum" : [ "KM", "SECOND", "MINUTE", "HOUR", "MILE", "PERCENTAGE" ]
+          },
+          "units" : {
+            "type" : "number",
+            "description" : "the number of km, seconds etc in the `per` part. In the first example of the description this should be 2.0",
+            "format" : "float"
+          },
+          "scales" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Scale"
+            }
+          }
+        },
+        "description" : "this describes a part of the fare (or discount).It contains a for instance the startup costs (fixed) or the flex part (e.g. 1.25 EUR per 2.0 MILES).The amount is tax included. In case of discounts, the values are negative.With 'MAX' you can specify e.g. a maximum of 15 euro per day. Percentage is mainly added for discounts.The `scale` properties create the ability to communicate scales(e.g. the first 4 kilometers you've to pay EUR 0.35 per kilometer, the kilometers 4 until 8 EUR 0.50 and above it EUR 0.80 per kilometer)."
+      },
+      "Requirements" : {
+        "type" : "object",
+        "properties" : {
+          "abilities" : {
+            "type" : "array",
+            "description" : "Requirements the users has ((dis)abilities, share [TRUE|FALSE], preferences [TBD])",
+            "items" : {
+              "$ref" : "#/components/schemas/Requirement"
+            }
+          },
+          "bringAlong" : {
+            "type" : "array",
+            "description" : "Requirements the users has ((dis)abilities, share [TRUE|FALSE], preferences [TBD])",
+            "items" : {
+              "$ref" : "#/components/schemas/Requirement"
+            }
+          }
+        },
+        "description" : "Requirements the users has"
+      },
+      "BookingOutput" : {
+        "required" : [ "id", "state" ],
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "A unique identifier for the TO to know this booking by"
+          },
+          "state" : {
+            "type" : "string",
+            "description" : "Booking status",
+            "enum" : [ "NEW", "PENDING", "REJECTED", "CONDITIONAL_CONFIRMED", "CONFIRMED", "CANCELLED", "STARTED", "FINISHED", "COMMIT" ]
+          }
+        }
+      },
+      "Fare" : {
+        "type" : "object",
+        "properties" : {
+          "estimated" : {
+            "type" : "boolean"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "bookingFee" : {
+            "type" : "number",
+            "description" : "Fee for booking in advance",
+            "format" : "float"
+          },
+          "waitingMaxSpeed" : {
+            "type" : "integer",
+            "description" : "Wait time charged while the vehicle is stopped or slowed to less than X KM per hour",
+            "format" : "int32"
+          },
+          "parts" : {
+            "type" : "array",
+            "description" : "this describes a part of the fare (or discount).It contains a for instance the startup costs (fixed) or the flex part (e.g. 1.25 EUR per 2.0 MILES).The amount is tax included. In case of discounts, the values are negative.With 'MAX' you can specify e.g. a maximum of 15 euro per day. Percentage is mainly added for discounts.The `scale` properties create the ability to communicate scales(e.g. the first 4 kilometers you've to pay EUR 0.35 per kilometer, the kilometers 4 until 8 EUR 0.50 and above it EUR 0.80 per kilometer).",
+            "items" : {
+              "$ref" : "#/components/schemas/FarePart"
+            }
+          }
+        },
+        "description" : "the total fare is the sum of all parts, except for the 'MAX' farePart. This one describes the maximum price for the complete leg."
+      },
       "Leg" : {
         "type" : "object",
         "properties" : {
-          "assetType" : {
-            "$ref" : "#/components/schemas/AssetType"
-          },
           "from" : {
             "$ref" : "#/components/schemas/Location"
           },
@@ -418,6 +533,9 @@
           "arrivalTime" : {
             "type" : "string",
             "description" : "The intended arrival time at the to place"
+          },
+          "assetType" : {
+            "$ref" : "#/components/schemas/AssetType"
           }
         },
         "description" : "The legs of this booking, generally just one for simple legs, in order of how they will be travelled"
@@ -477,6 +595,129 @@
           }
         },
         "description" : "The asset type used in this leg as determined during booking"
+      },
+      "BookingRequest" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "A unique identifier for the TO to know this booking by"
+          },
+          "from" : {
+            "$ref" : "#/components/schemas/Location"
+          },
+          "to" : {
+            "$ref" : "#/components/schemas/Location"
+          },
+          "customer" : {
+            "$ref" : "#/components/schemas/Customer"
+          },
+          "pickupTime" : {
+            "type" : "string",
+            "description" : "ISO-8601 formatted date. Pick up time"
+          },
+          "note" : {
+            "type" : "string",
+            "description" : "Booking note"
+          },
+          "callbackUrl" : {
+            "type" : "string",
+            "description" : "base callback/webhook url to send updates to (see /bookings/{bookingID}/events and /legs/{legID}/events)"
+          }
+        }
+      },
+      "LegOperationInput" : {
+        "required" : [ "event" ],
+        "type" : "object",
+        "properties" : {
+          "operation" : {
+            "type" : "string",
+            "writeOnly" : true,
+            "enum" : [ "PREPARE", "SET_IN_USE", "PAUSE", "FINISH", "TIME_POSTPONE" ]
+          },
+          "event" : {
+            "type" : "string",
+            "description" : "event operation",
+            "enum" : [ "PREPARE", "SET_IN_USE", "PAUSE", "FINISH", "TIME_POSTPONE" ]
+          },
+          "time" : {
+            "type" : "string",
+            "description" : "ISO-8601 formatted date. New pick up time"
+          }
+        }
+      },
+      "Traveler" : {
+        "required" : [ "referenceNumber", "requirements" ],
+        "type" : "object",
+        "properties" : {
+          "isValidated" : {
+            "type" : "boolean",
+            "description" : "Whether this traveler's identity and properties have been verified by the MaaS provider"
+          },
+          "age" : {
+            "type" : "integer",
+            "description" : "Age of the traveler, may be approximate",
+            "format" : "int32"
+          },
+          "referenceNumber" : {
+            "type" : "string",
+            "description" : "reference number of the traveler. This number could be used to refer to in the planning result (Currently used for device id)"
+          },
+          "requirements" : {
+            "$ref" : "#/components/schemas/Requirements"
+          }
+        },
+        "description" : "Extra information about the people that intend to travel if relevant, length must be less than or equal to nrOftravelers"
+      },
+      "Planning" : {
+        "type" : "object",
+        "properties" : {
+          "validUntil" : {
+            "type" : "string",
+            "description" : "The time until which the presented options are (likely) available"
+          },
+          "options" : {
+            "type" : "array",
+            "description" : "Booking Options",
+            "items" : {
+              "$ref" : "#/components/schemas/Booking"
+            }
+          }
+        }
+      },
+      "PlanningRequest" : {
+        "type" : "object",
+        "properties" : {
+          "from" : {
+            "$ref" : "#/components/schemas/Location"
+          },
+          "to" : {
+            "$ref" : "#/components/schemas/Location"
+          },
+          "departureTime" : {
+            "type" : "string",
+            "description" : "ISO-8601 formatted date. Departure time"
+          },
+          "arrivalTime" : {
+            "type" : "string",
+            "description" : "ISO-8601 formatted date. Arrival time"
+          },
+          "nrOfTravelers" : {
+            "type" : "integer",
+            "description" : "The number of people that intend to travel",
+            "format" : "int32"
+          },
+          "travelers" : {
+            "type" : "array",
+            "description" : "Extra information about the people that intend to travel if relevant, length must be less than or equal to nrOftravelers",
+            "items" : {
+              "$ref" : "#/components/schemas/Traveler"
+            }
+          },
+          "extraInfo" : {
+            "$ref" : "#/components/schemas/ExtraInfo"
+          }
+        }
       },
       "Location" : {
         "required" : [ "latitude", "longitude" ],
