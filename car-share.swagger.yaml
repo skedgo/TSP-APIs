@@ -37,13 +37,13 @@ paths:
       - name: start
         in: query
         description: |
-          ISO-8601 encoded date time to determine the `available` state of the vehicles, representing estimated start of vehicle usage. Should default to "now" if not provided.
+          ISO-8601 encoded date time to determine the `reserved` property of the vehicles, representing estimated start of vehicle usage. Should default to "now" if not provided.
         schema:
           type: string          
       - name: end
         in: query
         description: |
-          ISO-8601 encoded date time to determine the `available` state of the vehicles, representing estimated end of vehicle usage.
+          ISO-8601 encoded date time to determine the `reserved` property of the vehicles, representing estimated end of vehicle usage.
         schema:
           type: string
       responses:
