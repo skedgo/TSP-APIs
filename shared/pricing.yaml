@@ -1,0 +1,194 @@
+swagger: "2.0"
+
+info:
+  version: 0.1.0
+  title: Pricing Model
+  x-logo:
+    url: "https://developer.tripgo.com/img/tripgo-api-logo-color.svg"
+  description:
+    Work-in-progress proposal for a pricing model to be shared among bike share, car share, taxis, rental cars, public transport and car park APIs used to connect to SkedGo's platform.
+
+paths:
+  /pricing_model:
+    get:
+      summary: Get available pricing models
+      description: just to enable ReDocs
+      responses:
+        200:
+          description: Successful response
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/pricing_model'
+
+definitions:
+  pricing_model:
+    description: pricing model including currency, passes and rates.
+    properties:
+      system_id:
+        type: string
+      currency:
+        type: string
+      rates:
+        description: list of available rates
+        type: array
+        items:
+          $ref: '#/definitions/rate'
+      passes:
+        description: list of available passes
+        type: array
+        items:
+          $ref: '#/definitions/pass'
+    required:
+      - system_id
+      - currency
+    example:
+      system_id: donkey_republic_barcelona
+      currency: EUR
+      rates:
+        - rate_id: 1
+          name: turist
+          usage_rates:
+            - base_cost: 1.5
+              max_minutes: 30
+            - base_cost: 6
+              max_minutes: 120
+            - base_cost: 50.4
+              max_minutes: 10080
+        - rate_id: 2
+          name: occasional
+          fallback_rate_id: 1
+          membership:
+            membership_id: 1
+            name: occasional
+            cost: 0
+          usage_rates:
+            - base_cost: 0.75
+              max_minutes: 30
+            - base_cost: 5.1
+              max_minutes: 720
+        - rate_id: 3
+          name: regular
+          fallback_rate_id: 1
+          membership:
+            membership_id: 2
+            name: regular
+            cost: 15
+            billed: monthly
+          usage_rates:
+            - base_cost: 0
+              max_minutes: 720
+      passes:
+        - pass_id: 2
+          name: 3 says pass (coord_sample)
+          cost: 24
+          max_days: 3
+          usage_rates:
+            - base_cost: 0
+              time_rate_per_unit: 5
+              discrete_unit_in_minutes: 15
+              included_minutes: 30
+
+  pass:
+    description: A pass is a way to pay for multiple services, either by time or number of services (trips or rides)
+    properties:
+      pass_id:
+        description: unique identifier of the pass
+        type: string
+      name:
+        type: string
+      cost:
+        description: cost of the pass
+        type: number
+      category:
+        description: category of the pass, like regular, concession, child, etc.
+        type: string
+      max_days:
+        description: if present, defines the days this pass is valid for
+        type: integer
+      mas_usages:
+        description: if present, defines the number of trips or rides this pass is valid for
+        type: integer
+      usage_rates:
+        description: extra rules if required to specify extra fees
+        type: array
+        items:
+          $ref: '#/definitions/usage_rate'
+    required:
+      - pass_id
+      - cost
+  rate:
+    description: A specific group of rate rules for which a user can be charge for the use of a service
+    properties:
+      rate_id:
+        description: A unique identifier of the rate
+        type: string
+      name:
+        type: string
+      fallback_rate_id:
+        description: if present, identifies the set of rules to be use as fallback when the ones defined here does not apply
+        type: string
+      membership:
+        description: information of required membership
+        $ref: '#/definitions/membership'
+      category:
+        description: category of the rate, like regular, concession, child, etc.
+        type: string
+      usage_rates:
+        description: list of rates to be applied, in order, the first one that applies is the one that should be used.
+        type: array
+        items:
+          $ref: '#/definitions/usage_rate'
+    required:
+      - rate_id
+      - usage_rates
+  usage_rate:
+    description: a specific rate rule that may be applied to a service
+    properties:
+      base_cost:
+        description: starting cost of this rate
+        type: number
+      time_rate_per_unit:
+        description: rate to be applied per time usage of the service, if missing, the rate does not depend on time usage
+        type: number
+      discrete_unit_in_minutes:
+        description: if present, represents discrete value of minutes that the user is charged for, based on time_rate_per_unit
+        type: integer
+      included_minutes:
+        description: minutes included for free with the base cost
+        type: integer
+      max_minutes:
+        description: max number of minutes for which this rate can be used for
+        type: integer
+      distance_rate_per_unit:
+        description: rate to be applied per distance usage of the service, if missing, the rate does not depend on distance usage
+        type: number
+      discrete_unit_in_meters:
+        description: if present, represents discrete value of distance that the user is charged for, based on distance_rate_per_unit
+        type: integer
+      included_meters:
+        description: meters included for free with the base cost
+        type: integer
+      max_meters:
+        description: max amount of meters for which this rate can be used for
+        type: integer
+    required:
+      - base_cost
+  membership:
+    description: describe a possible membership for a given system
+    properties:
+      membership_id:
+        description: A unique identifier of the membership
+        type: string
+      name:
+        type: string
+      cost:
+        description: fee of the membership
+        type: number
+      billed:
+        description: how this membership is charged
+        type: string
+        enum: [weekly, monthly, yearly]
+    required:
+      - membership_id
+      - cost
