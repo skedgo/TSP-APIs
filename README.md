@@ -30,7 +30,7 @@ These are the current specs, but may change once they are added as TSP connector
 
 ### Car-Sharing:
 
-- [View in Swagger UI](http://petstore.swagger.io/?url=https://raw.githubusercontent.com/skedgo/TSP-APIs/master/car-share.swagger.yaml).
+- [View in Swagger UI](http://petstore.swagger.io/?url=https://raw.githubusercontent.com/skedgo/TSP-APIs/master/car-share.openapi.yaml).
 - [Car Share High level model](model/CarShare.md)
 
 ### Car Parks:
