@@ -34,6 +34,18 @@ paths:
         description: Minimum longitude
         schema:
           type: number
+      - name: start
+        in: query
+        description: |
+          ISO-8601 encoded date time to determine the `available` state of the vehicles, representing estimated start of vehicle usage. Should default to "now" if not provided.
+        schema:
+          type: string          
+      - name: end
+        in: query
+        description: |
+          ISO-8601 encoded date time to determine the `available` state of the vehicles, representing estimated end of vehicle usage.
+        schema:
+          type: string
       responses:
         200:
           description: Successful response
@@ -65,13 +77,13 @@ paths:
       - name: earliest
         in: query
         description: |
-          ISO-8601 encoded date for earliest availability information. Should default to "now" if not provided.
+          ISO-8601 encoded date time for earliest availability information. Should default to "now" if not provided.
         schema:
           type: string
       - name: latest
         in: query
         description: |
-          ISO-8601 encoded date for latest availability information.
+          ISO-8601 encoded date time for latest availability information.
         schema:
           type: string
       responses:
@@ -156,6 +168,10 @@ components:
             \ or refueling with the vehicle's current charge or fuel."          
         websiteURL:
           type: string
+          description: Link to access website with furter details of vehicle
+        bookingURL:
+          type: string
+          description: Link to deep-link into booking system to book this vehicle. `start` and `end` query parameters with dates formatted as ISO8601 dates will be added to this URL, representing when the booking should start and end.
     SharedVehicleTypeInfo:
       type: object
       required:
