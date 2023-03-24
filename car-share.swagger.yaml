@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: Car Share Operators
   description: |
-    Work-in-progress proposal for car share operators to connect their services to SkedGo's platform.
+    Work-in-progress proposal for car-share operators to connect their services to SkedGo's platform.
   version: 0.1.0
 servers:
 - url: /
@@ -82,20 +82,25 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Availability'
+                  $ref: '#/components/schemas/BookingAvailability'
 components:
   schemas:
     Vehicle:
       required:
-      - id
+      - identifier
       - location
+      - name
+      - details
       type: object
       properties:
-        id:
+        identifier:
           type: string
           description: Unique identifier of this vehicle
         location:
           $ref: '#/components/schemas/Location'
+        licensePlate:
+          type: string
+          description: "Vehicle's license plate, if known"
         name:
           type: string
           description: A user-friendly name for the vehicle
@@ -108,36 +113,84 @@ components:
             $ref: '#/components/schemas/ImageInfo'
         details:
           type: object
+          required:
+            - typeInfo
           properties:
             make:
               type: string
             model:
               type: string
-            engine:
-              type: string
+            typeInfo:
+              $ref: '#/components/schemas/SharedVehicleTypeInfo'
             automatic:
               type: boolean
-            electric:
-              type: boolean
+            seats:
+              type: integer
             emissions:
               type: number
               description: |
                 Emissions in grams CO2 per KM
-            seats:
-              type: integer
-        fuel:
-          type: number
-          description: Percentage of how full the car's tank / battery currently is
         pricing:
           type: array
           items:
             $ref: '#/components/schemas/Pricing'
+        fuelLevel:
+          type: number
+          description: Percentage of how full the car's tank or battery currently is, in a range from 0-100
+        disabled:
+          type: boolean
+          description: Whether the vehicle currently disabled, e.g., is currently not usable as it's scheduled for a service
+        reserved:
+          type: boolean
+          description: Whether the vehicle is currently reserved
+        lastReported:
+          type: string
+          description: "Time in YYYY-MM-DDTHH:MM:SS+00:00[zoneID] format (ISO 8601)\
+            \ since the last time this vehicle reported its status to the operator's\
+            \ backend"
+        currentRangeMeters:
+          type: integer
+          description: "If the corresponding vehicle_type definition for this vehicle\
+            \ has a motor, then this field is required. This value represents the\
+            \ furthest distance in metres that the vehicle can travel without recharging\
+            \ or refueling with the vehicle's current charge or fuel."          
         websiteURL:
           type: string
-    Location:
+    SharedVehicleTypeInfo:
+      type: object
       required:
-      - lat
-      - lng
+        - name
+        - propulsionType
+        - formFactor
+      properties:
+        name:
+          type: string
+          description: name of type of vehicle
+        maxRangeMeters:
+          type: integer
+          description: "If the vehicle has a motor (as indicated by having a value\
+            \ other than human in the propulsion_type field), this field is required.\
+            \ This represents the furthest distance in metres that the vehicle can\
+            \ travel without recharging or refueling when it has the maximum amount\
+            \ of energy potential (for example, a full battery or full tank of gas)."
+        formFactor:
+          type: string
+          description: Type of vehicle
+          enum:
+          - BICYCLE
+          - CAR
+          - MOPED
+          - SCOOTER
+          - OTHER
+        propulsionType:
+          type: string
+          description: The primary propulsion type of the vehicle
+          enum:
+          - HUMAN
+          - ELECTRIC_ASSIST
+          - ELECTRIC
+          - COMBUSTION
+    Location:
       type: object
       properties:
         lat:
@@ -194,10 +247,31 @@ components:
         minutes: 1440
         includedKM: 150
         costPerKM: 0.2
-    Availability:
+    BookingAvailability:
       type: object
+      required:
+        - intervals
       properties:
-        arrive:
+        timestamp:
           type: string
-          description: |
-            ISO-8601 encoded date. Either this or `depart` is required. If this is provided, `destination` is required.
+          description: "Time in YYYY-MM-DDTHH:MM:SS+00:00[zoneID] format (ISO 8601)\
+            \ of when this availability was last reported"          
+        intervals:
+          type : array
+          items:
+            type: object
+            required:
+              - status
+            properties: 
+              status:
+                type: string
+                enum:
+                  - AVAILABLE
+                  - NOT_AVAILABLE
+                  - UNKNOWN
+              start:
+                type: string
+                description: Start time of this interval in YYYY-MM-DDTHH:MM:SS+00:00[zoneID] format (ISO 8601)
+              end:
+                type: string
+                description: End time of this interval in YYYY-MM-DDTHH:MM:SS+00:00[zoneID] format (ISO 8601)
