@@ -1,9 +1,11 @@
 openapi: 3.0.1
+
 info:
+  version: 0.1.0
   title: Car Share Operators
   description: |
     Work-in-progress proposal for car-share operators to connect their services to SkedGo's platform.
-  version: 0.1.0
+
 servers:
 - url: /
 paths:
@@ -172,6 +174,9 @@ components:
         bookingURL:
           type: string
           description: Link to deep-link into booking system to book this vehicle. `start` and `end` query parameters with dates formatted as ISO8601 dates will be added to this URL, representing when the booking should start and end.
+        queryParams:
+          type: string
+          description: Query parameters that will be added to the bookingURL.
     SharedVehicleTypeInfo:
       type: object
       required:

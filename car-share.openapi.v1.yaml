@@ -1,12 +1,11 @@
-swagger: '2.0'
+openapi: '3.0.1'
 
 info:
-  version: "0.0.1"
+  version: 0.0.1
   title: Car Share Operators
   description: |
     Work-in-progress proposal for car share operators to connect their services to SkedGo's platform.
   
-
 paths:
   /vehicle:
     get:
@@ -125,6 +124,8 @@ definitions:
         items:
           $ref: '#/definitions/Pricing'
       websiteURL:
+        type: string
+      queryParams:
         type: string
     required:
       - id
