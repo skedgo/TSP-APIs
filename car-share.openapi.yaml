@@ -1,0 +1,298 @@
+openapi: 3.0.1
+
+info:
+  version: 0.1.0
+  title: Car Share Operators
+  description: |
+    Work-in-progress proposal for car-share operators to connect their services to SkedGo's platform.
+
+servers:
+- url: /
+paths:
+  /vehicle:
+    get:
+      description: |
+        Provides a list of all vehicles (regardless of whether they are currently available or not), including optionally (but highly recommended!) information on prices. Required method.
+
+        Query parameters are optional to request the entire global fleet, or otherwise all parameters are provided to fetch the vehicles in the provided map region.
+      parameters:
+      - name: north
+        in: query
+        description: Maximum latitude
+        schema:
+          type: number
+      - name: east
+        in: query
+        description: Maximum longitude
+        schema:
+          type: number
+      - name: south
+        in: query
+        description: Minimum latitude
+        schema:
+          type: number
+      - name: west
+        in: query
+        description: Minimum longitude
+        schema:
+          type: number
+      - name: start
+        in: query
+        description: |
+          ISO-8601 encoded date time to determine the `reserved` property of the vehicles, representing estimated start of vehicle usage. Should default to "now" if not provided.
+        schema:
+          type: string          
+      - name: end
+        in: query
+        description: |
+          ISO-8601 encoded date time to determine the `reserved` property of the vehicles, representing estimated end of vehicle usage.
+        schema:
+          type: string
+      responses:
+        200:
+          description: Successful response
+          content:
+            '*/*':
+              schema:
+                type: object
+                properties:
+                  ttl:
+                    type: number
+                    description: Time To Live for the results in seconds, which is
+                      an indicator for SkedGo when to fetch request an update of the
+                      fleet information.
+                  vehicles:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Vehicle'
+  /vehicle/{id}/availability:
+    get:
+      description: |
+        Provides availability information for the provided vehicle. Optional method.
+      parameters:
+      - name: id
+        in: path
+        description: Unique identifier of this vehicle
+        required: true
+        schema:
+          type: string
+      - name: earliest
+        in: query
+        description: |
+          ISO-8601 encoded date time for earliest availability information. Should default to "now" if not provided.
+        schema:
+          type: string
+      - name: latest
+        in: query
+        description: |
+          ISO-8601 encoded date time for latest availability information.
+        schema:
+          type: string
+      responses:
+        200:
+          description: Successful response
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BookingAvailability'
+components:
+  schemas:
+    Vehicle:
+      required:
+      - identifier
+      - location
+      - name
+      - details
+      type: object
+      properties:
+        identifier:
+          type: string
+          description: Unique identifier of this vehicle
+        location:
+          $ref: '#/components/schemas/Location'
+        licensePlate:
+          type: string
+          description: "Vehicle's license plate, if known"
+        name:
+          type: string
+          description: A user-friendly name for the vehicle
+        description:
+          type: string
+          description: A longer user-friendly description of the vehicle
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImageInfo'
+        details:
+          type: object
+          required:
+            - typeInfo
+          properties:
+            make:
+              type: string
+            model:
+              type: string
+            typeInfo:
+              $ref: '#/components/schemas/SharedVehicleTypeInfo'
+            automatic:
+              type: boolean
+            seats:
+              type: integer
+            emissions:
+              type: number
+              description: |
+                Emissions in grams CO2 per KM
+        pricing:
+          type: array
+          items:
+            $ref: '#/components/schemas/Pricing'
+        fuelLevel:
+          type: number
+          description: Percentage of how full the car's tank or battery currently is, in a range from 0-100
+        disabled:
+          type: boolean
+          description: Whether the vehicle currently disabled, e.g., is currently not usable as it's scheduled for a service
+        reserved:
+          type: boolean
+          description: Whether the vehicle is currently reserved
+        lastReported:
+          type: string
+          description: "Time in YYYY-MM-DDTHH:MM:SS+00:00[zoneID] format (ISO 8601)\
+            \ since the last time this vehicle reported its status to the operator's\
+            \ backend"
+        currentRangeMeters:
+          type: integer
+          description: "If the corresponding vehicle_type definition for this vehicle\
+            \ has a motor, then this field is required. This value represents the\
+            \ furthest distance in metres that the vehicle can travel without recharging\
+            \ or refueling with the vehicle's current charge or fuel."          
+        websiteURL:
+          type: string
+          description: Link to access website with furter details of vehicle
+        bookingURL:
+          type: string
+          description: Link to deep-link into booking system to book this vehicle. `start` and `end` query parameters with dates formatted as ISO8601 dates will be added to this URL, representing when the booking should start and end.
+        queryParams:
+          type: string
+          description: Query parameters that will be added to the bookingURL. By default, the query parameters will be 'start_time=<start_time>&end_time=<end_time>' unless this field is specified with custom query parameters following the same format as the default template.
+    SharedVehicleTypeInfo:
+      type: object
+      required:
+        - name
+        - propulsionType
+        - formFactor
+      properties:
+        name:
+          type: string
+          description: name of type of vehicle
+        maxRangeMeters:
+          type: integer
+          description: "If the vehicle has a motor (as indicated by having a value\
+            \ other than human in the propulsion_type field), this field is required.\
+            \ This represents the furthest distance in metres that the vehicle can\
+            \ travel without recharging or refueling when it has the maximum amount\
+            \ of energy potential (for example, a full battery or full tank of gas)."
+        formFactor:
+          type: string
+          description: Type of vehicle
+          enum:
+          - BICYCLE
+          - CAR
+          - MOPED
+          - SCOOTER
+          - OTHER
+        propulsionType:
+          type: string
+          description: The primary propulsion type of the vehicle
+          enum:
+          - HUMAN
+          - ELECTRIC_ASSIST
+          - ELECTRIC
+          - COMBUSTION
+    Location:
+      type: object
+      properties:
+        lat:
+          type: number
+          description: Latitude
+        lng:
+          type: number
+          description: Longitude
+        address:
+          type: string
+    ImageInfo:
+      required:
+      - height
+      - url
+      - width
+      type: object
+      properties:
+        width:
+          type: number
+        height:
+          type: number
+        url:
+          type: string
+    Pricing:
+      required:
+      - cost
+      - currency
+      - minutes
+      type: object
+      properties:
+        title:
+          type: string
+          description: Human-friendly title for this price
+        currency:
+          type: string
+          description: Unambiguous currency identifier, e.g., "EUR" or "USD"
+        cost:
+          type: number
+        minutes:
+          type: number
+          description: Duration in minutes
+        includedKM:
+          type: number
+        costPerKM:
+          type: number
+      example:
+      - title: $8.5 per hour
+        cost: 8.5
+        currency: AUD
+        minutes: 60
+      - title: $69 per day
+        cost: 69
+        currency: AUD
+        minutes: 1440
+        includedKM: 150
+        costPerKM: 0.2
+    BookingAvailability:
+      type: object
+      required:
+        - intervals
+      properties:
+        timestamp:
+          type: string
+          description: "Time in YYYY-MM-DDTHH:MM:SS+00:00[zoneID] format (ISO 8601)\
+            \ of when this availability was last reported"          
+        intervals:
+          type : array
+          items:
+            type: object
+            required:
+              - status
+            properties: 
+              status:
+                type: string
+                enum:
+                  - AVAILABLE
+                  - NOT_AVAILABLE
+                  - UNKNOWN
+              start:
+                type: string
+                description: Start time of this interval in YYYY-MM-DDTHH:MM:SS+00:00[zoneID] format (ISO 8601)
+              end:
+                type: string
+                description: End time of this interval in YYYY-MM-DDTHH:MM:SS+00:00[zoneID] format (ISO 8601)
