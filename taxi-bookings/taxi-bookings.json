@@ -1220,7 +1220,7 @@
           },
           "currency": {
             "type": "string",
-            "description": "Unambiguous currency identifier, e.g., "EUR" or "USD""
+            "description": "Unambiguous currency identifier, e.g., 'EUR' or 'USD'"
           },
           "estimate": {
             "type": "integer",
