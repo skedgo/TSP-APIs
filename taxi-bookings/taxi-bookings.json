@@ -2,7 +2,7 @@
   "openapi": "3.0.1",
   "info": {
     "title": "Taxi API",
-    "description": "Alpha version of the TSP connector for taxis used to connect to SkedGo's platform.\n Returns information in GeoJSON",
+    "description": "Alpha version of the TSP connector for taxis used to connect to SkedGo's platform. Returns information in GeoJSON",
     "license": {
       "name": "Apache 2.0 License",
       "url": "https://www.apache.org/licenses/LICENSE-2.0"
@@ -153,106 +153,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Booking"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "This method requires an `x-access_key` and it is either missing or invalid, or the the credentials provided are not sufficient for access to the specified resource.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/estimate/price": {
-      "post": {
-        "tags": [
-          "Estimates"
-        ],
-        "summary": "Estimated price for products",
-        "description": "An estimated price range for each product offered at a given location.",
-        "operationId": "estimatePrice",
-        "parameters": [
-          {
-            "name": "x-access_key",
-            "in": "header",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PriceEstimateInput"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "List of price estimates for each product available",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PriceEstimateList"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "This method requires an `x-access_key` and it is either missing or invalid, or the the credentials provided are not sufficient for access to the specified resource.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/estimate/time": {
-      "post": {
-        "tags": [
-          "Estimates"
-        ],
-        "summary": "ETAs for products",
-        "description": "ETAs for all products offered at a given location, with the responses expressed in seconds",
-        "operationId": "estimateTime",
-        "parameters": [
-          {
-            "name": "x-access_key",
-            "in": "header",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Location"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Detailed information on the bike/car systems in the requested search area.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TimeEstimateList"
                 }
               }
             }
@@ -596,216 +496,6 @@
           }
         }
       },
-      "TimeEstimateList": {
-        "required": [
-          "timeEstimates"
-        ],
-        "type": "object",
-        "properties": {
-          "timeEstimates": {
-            "type": "array",
-            "description": "List of time estimates",
-            "items": {
-              "$ref": "#/components/schemas/TimeEstimate"
-            }
-          }
-        }
-      },
-      "Requirements": {
-        "type": "object",
-        "properties": {
-          "abilities": {
-            "type": "array",
-            "description": "Requirements the users has ((dis)abilities, share [TRUE|FALSE], preferences [TBD])",
-            "items": {
-              "$ref": "#/components/schemas/Requirement"
-            }
-          },
-          "bringAlong": {
-            "type": "array",
-            "description": "Requirements the users has ((dis)abilities, share [TRUE|FALSE], preferences [TBD])",
-            "items": {
-              "$ref": "#/components/schemas/Requirement"
-            }
-          }
-        },
-        "description": "Requirements the users has"
-      },
-      "BookingOutput": {
-        "required": [
-          "id"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "A unique identifier for the TO to know this booking by"
-          },
-          "state": {
-            "type": "string",
-            "description": "Booking status",
-            "enum": [
-              "NEW",
-              "PENDING",
-              "REJECTED",
-              "CONDITIONAL_CONFIRMED",
-              "CONFIRMED",
-              "CANCELLED",
-              "STARTED",
-              "FINISHED",
-              "COMMIT"
-            ]
-          }
-        }
-      },
-      "TimeEstimate": {
-        "required": [
-          "productId"
-        ],
-        "type": "object",
-        "properties": {
-          "productId": {
-            "type": "string",
-            "description": "Product identifier"
-          },
-          "estimate": {
-            "type": "integer",
-            "description": "ETA for the product (in seconds). Always show estimate in minutes",
-            "format": "int32"
-          }
-        },
-        "description": "List of time estimates"
-      },
-      "BookingRequest": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "A unique identifier for the TO to know this booking by"
-          },
-          "from": {
-            "$ref": "#/components/schemas/Location"
-          },
-          "to": {
-            "$ref": "#/components/schemas/Location"
-          },
-          "customer": {
-            "$ref": "#/components/schemas/Customer"
-          },
-          "pickupTime": {
-            "type": "string",
-            "description": "ISO-8601 formatted date. Pick up time"
-          },
-          "note": {
-            "type": "string",
-            "description": "Booking note"
-          },
-          "callbackUrl": {
-            "type": "string",
-            "description": "base callback/webhook url to send updates to (see /bookings/{bookingID}/events and /legs/{legID}/events)"
-          }
-        }
-      },
-      "PriceEstimateList": {
-        "required": [
-          "priceEstimates"
-        ],
-        "type": "object",
-        "properties": {
-          "priceEstimates": {
-            "type": "array",
-            "description": "List of price estimates",
-            "items": {
-              "$ref": "#/components/schemas/PriceEstimate"
-            }
-          }
-        }
-      },
-      "LegOperationInput": {
-        "required": [
-          "event"
-        ],
-        "type": "object",
-        "properties": {
-          "operation": {
-            "type": "string",
-            "writeOnly": true,
-            "enum": [
-              "PREPARE",
-              "SET_IN_USE",
-              "PAUSE",
-              "FINISH",
-              "TIME_POSTPONE"
-            ]
-          },
-          "event": {
-            "type": "string",
-            "description": "event operation",
-            "enum": [
-              "PREPARE",
-              "SET_IN_USE",
-              "PAUSE",
-              "FINISH",
-              "TIME_POSTPONE"
-            ]
-          },
-          "time": {
-            "type": "string",
-            "description": "ISO-8601 formatted date. New pick up time"
-          }
-        }
-      },
-      "PlanningRequest": {
-        "type": "object",
-        "properties": {
-          "from": {
-            "$ref": "#/components/schemas/Location"
-          },
-          "to": {
-            "$ref": "#/components/schemas/Location"
-          },
-          "departureTime": {
-            "type": "string",
-            "description": "ISO-8601 formatted date. Departure time"
-          },
-          "arrivalTime": {
-            "type": "string",
-            "description": "ISO-8601 formatted date. Arrival time"
-          },
-          "nrOfTravelers": {
-            "type": "integer",
-            "description": "The number of people that intend to travel",
-            "format": "int32"
-          },
-          "travelers": {
-            "type": "array",
-            "description": "Extra information about the people that intend to travel if relevant, length must be less than or equal to nrOftravelers",
-            "items": {
-              "$ref": "#/components/schemas/Customer"
-            }
-          },
-          "extraInfo": {
-            "$ref": "#/components/schemas/ExtraInfo"
-          }
-        }
-      },
-      "AccountInput": {
-        "type": "object",
-        "properties": {
-          "email": {
-            "type": "string"
-          },
-          "phoneNumber": {
-            "type": "string"
-          },
-          "givenName": {
-            "type": "string"
-          },
-          "surname": {
-            "type": "string"
-          }
-        }
-      },
       "Booking": {
         "required": [
           "id"
@@ -980,6 +670,53 @@
           }
         },
         "description": "this describes a part of the fare (or discount).It contains a for instance the startup costs (fixed) or the flex part (e.g. 1.25 EUR per 2.0 MILES).The amount is tax included. In case of discounts, the values are negative.With 'MAX' you can specify e.g. a maximum of 15 euro per day. Percentage is mainly added for discounts.The `scale` properties create the ability to communicate scales(e.g. the first 4 kilometers you've to pay EUR 0.35 per kilometer, the kilometers 4 until 8 EUR 0.50 and above it EUR 0.80 per kilometer)."
+      },
+      "Requirements": {
+        "type": "object",
+        "properties": {
+          "abilities": {
+            "type": "array",
+            "description": "Requirements the users has ((dis)abilities, share [TRUE|FALSE], preferences [TBD])",
+            "items": {
+              "$ref": "#/components/schemas/Requirement"
+            }
+          },
+          "bringAlong": {
+            "type": "array",
+            "description": "Requirements the users has ((dis)abilities, share [TRUE|FALSE], preferences [TBD])",
+            "items": {
+              "$ref": "#/components/schemas/Requirement"
+            }
+          }
+        },
+        "description": "Requirements the users has"
+      },
+      "BookingOutput": {
+        "required": [
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "A unique identifier for the TO to know this booking by"
+          },
+          "state": {
+            "type": "string",
+            "description": "Booking status",
+            "enum": [
+              "NEW",
+              "PENDING",
+              "REJECTED",
+              "CONDITIONAL_CONFIRMED",
+              "CONFIRMED",
+              "CANCELLED",
+              "STARTED",
+              "FINISHED",
+              "COMMIT"
+            ]
+          }
+        }
       },
       "Fare": {
         "type": "object",
@@ -1156,38 +893,67 @@
         },
         "description": "The asset type used in this leg as determined during booking"
       },
-      "PriceEstimateInput": {
+      "BookingRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "A unique identifier for the TO to know this booking by"
+          },
+          "from": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "to": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "customer": {
+            "$ref": "#/components/schemas/Customer"
+          },
+          "pickupTime": {
+            "type": "string",
+            "description": "ISO-8601 formatted date. Pick up time"
+          },
+          "note": {
+            "type": "string",
+            "description": "Booking note"
+          },
+          "callbackUrl": {
+            "type": "string",
+            "description": "base callback/webhook url to send updates to (see /bookings/{bookingID}/events and /legs/{legID}/events)"
+          }
+        }
+      },
+      "LegOperationInput": {
         "required": [
-          "origin"
+          "event"
         ],
         "type": "object",
         "properties": {
-          "origin": {
-            "$ref": "#/components/schemas/Location"
-          },
-          "destination": {
-            "$ref": "#/components/schemas/Location"
-          },
-          "depart": {
+          "operation": {
             "type": "string",
-            "description": "ISO-8601 formatted date. Either this or `arrive` is required."
+            "writeOnly": true,
+            "enum": [
+              "PREPARE",
+              "SET_IN_USE",
+              "PAUSE",
+              "FINISH",
+              "TIME_POSTPONE"
+            ]
           },
-          "arrive": {
+          "event": {
             "type": "string",
-            "description": "ISO-8601 formatted date. Either this or `depart` is required. If this is provided, `destination` is required. "
+            "description": "event operation",
+            "enum": [
+              "PREPARE",
+              "SET_IN_USE",
+              "PAUSE",
+              "FINISH",
+              "TIME_POSTPONE"
+            ]
           },
-          "passengers": {
-            "type": "integer",
-            "description": "Number of passengers",
-            "format": "int32"
-          },
-          "wheelchair": {
-            "type": "boolean",
-            "description": "If a wheelchair-accessible vehicle is required"
-          },
-          "productId": {
+          "time": {
             "type": "string",
-            "description": "ID of the product if quotes should be limited to that."
+            "description": "ISO-8601 formatted date. New pick up time"
           }
         }
       },
@@ -1207,48 +973,56 @@
           }
         }
       },
-      "PriceEstimate": {
-        "required": [
-          "currency",
-          "productId"
-        ],
+      "PlanningRequest": {
         "type": "object",
         "properties": {
-          "productId": {
+          "from": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "to": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "departureTime": {
             "type": "string",
-            "description": "Product identifier"
+            "description": "ISO-8601 formatted date. Departure time"
           },
-          "currency": {
+          "arrivalTime": {
             "type": "string",
-            "description": "Unambiguous currency identifier, e.g., 'EUR' or 'USD'"
+            "description": "ISO-8601 formatted date. Arrival time"
           },
-          "estimate": {
+          "nrOfTravelers": {
             "type": "integer",
-            "description": "estimate in cents (at least one of the 3 price estimates must be present)",
+            "description": "The number of people that intend to travel",
             "format": "int32"
           },
-          "lowEstimate": {
-            "type": "integer",
-            "description": "lower estimate in cents (at least one of the 3 price estimates must be present)",
-            "format": "int32"
+          "travelers": {
+            "type": "array",
+            "description": "Extra information about the people that intend to travel if relevant, length must be less than or equal to nrOftravelers",
+            "items": {
+              "$ref": "#/components/schemas/Customer"
+            }
           },
-          "highEstimate": {
-            "type": "integer",
-            "description": "higher estimate in cents (at least one of the 3 price estimates must be present)",
-            "format": "int32"
-          },
-          "duration": {
-            "type": "integer",
-            "description": "estimate duration of the trip, in seconds",
-            "format": "int32"
-          },
-          "distance": {
-            "type": "integer",
-            "description": "estimate distance of the trip, in metres",
-            "format": "int32"
+          "extraInfo": {
+            "$ref": "#/components/schemas/ExtraInfo"
           }
-        },
-        "description": "List of price estimates"
+        }
+      },
+      "AccountInput": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "givenName": {
+            "type": "string"
+          },
+          "surname": {
+            "type": "string"
+          }
+        }
       },
       "Location": {
         "required": [
