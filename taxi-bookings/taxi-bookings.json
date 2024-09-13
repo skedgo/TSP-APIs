@@ -431,11 +431,8 @@
       "Customer": {
         "required": [
           "email",
-          "givenName",
           "id",
-          "phone",
-          "referenceNumber",
-          "surname"
+          "phone"
         ],
         "type": "object",
         "properties": {
@@ -457,7 +454,7 @@
           },
           "id": {
             "type": "string",
-            "description": "The identifier MaaS uses to identify the customer"
+            "description": "The identifier MaaS uses to identify the customer, required if the provider supports accounts"
           },
           "givenName": {
             "type": "string",
@@ -469,11 +466,11 @@
           },
           "phone": {
             "type": "string",
-            "description": "customer phone"
+            "description": "customer phone, required if the provider does not supports accounts"
           },
           "email": {
             "type": "string",
-            "description": "customer email"
+            "description": "customer email, required if the provider does not supports accounts"
           }
         },
         "description": "The user that wants to make this booking"
