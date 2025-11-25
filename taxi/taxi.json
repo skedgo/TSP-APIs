@@ -2,20 +2,17 @@
   "openapi": "3.0.1",
   "info": {
     "title": "Taxi API",
-    "description": "Alpha version of the TSP connector for taxis used to connect to SkedGo's platform.\nReturns information in GeoJSON",
+    "description": "TSP connector API specs for taxis used to connect from/to SkedGo's platform.",
     "license": {
       "name": "Apache 2.0 License",
       "url": "https://www.apache.org/licenses/LICENSE-2.0"
     },
-    "version": "1.0.0",
-    "x-logo": {
-      "url": "https://developer.tripgo.com/img/tripgo-api-logo-color.svg"
-    }
+    "version": "1.0.0"
   },
   "tags": [
     {
-      "name": "Shared",
-      "description": "Shared information"
+      "name": "Configuration",
+      "description": "Provider Configuration info, including endpoints implemented, coverage and TO info"
     },
     {
       "name": "Estimates",
@@ -23,15 +20,15 @@
     },
     {
       "name": "Booking-TO",
-      "description": "Transport operator booking flow"
+      "description": "Transport operator booking flow, SkedGo will use these endpoints to create/manage bookings"
     },
     {
       "name": "Booking-MP",
-      "description": "Mobility provider interactions"
+      "description": "Mobility provider interactions, SkedGo will listen to these endpoints for updates from TO"
     },
     {
       "name": "Account",
-      "description": "Account management"
+      "description": "Account management, if needed to create/retrieve shallow user accounts on TP"
     }
   ],
   "paths": {
@@ -356,7 +353,7 @@
     "/config": {
       "get": {
         "tags": [
-          "Shared"
+          "Configuration"
         ],
         "summary": "Endpoints available",
         "description": "All the endpoints implemented, with their corresponding URL",
@@ -399,7 +396,7 @@
     "/coverage": {
       "get": {
         "tags": [
-          "Shared"
+          "Configuration"
         ],
         "summary": "All supported areas",
         "description": "All the coverage areas that this operator serves, including optionally (but highly recommended!) information on products and prices. Information about each area is returned as a GeoJSON Feature, within a single GeoJSON FeatureCollection.",
@@ -546,7 +543,7 @@
     "/provider": {
       "get": {
         "tags": [
-          "Shared"
+          "Configuration"
         ],
         "summary": "Information of the provider",
         "description": "Information about the provider, including company info and enabled endpoints",
